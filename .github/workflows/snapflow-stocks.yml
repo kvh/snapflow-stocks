@@ -1,4 +1,4 @@
-name: snapflow
+name: snapflow-stocks
 
 on:
   push:

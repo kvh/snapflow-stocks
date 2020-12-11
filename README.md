@@ -1,8 +1,8 @@
-{module} module for the [snapflow](https://github.com/kvh/snapflow) framework.
+Stocks module for the [snapflow](https://github.com/kvh/snapflow) framework.
 
 #### Install
 
-`pip install snapflow-{module}` or `poetry add snapflow-{module}`
+`pip install snapflow-stocks` or `poetry add snapflow-stocks`
 
 #### Example
 

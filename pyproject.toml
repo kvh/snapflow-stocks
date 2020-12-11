@@ -1,8 +1,8 @@
 [tool.poetry]
 authors = ["Ken Van Haren <kenvanharen@gmail.com>"]
-description = "Template module for snapflow"
+description = "Stocks module for snapflow"
 license = "BSD-3-Clause"
-name = "snapflow-{module}"
+name = "snapflow-stocks"
 version = "0.1.0"
 
 [tool.poetry.dependencies]
