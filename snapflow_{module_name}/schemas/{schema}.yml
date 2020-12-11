@@ -1,0 +1,17 @@
+name: ExampleSchema
+version: 1
+description: Example schema
+unique on:
+  - id
+on conflict: ReplaceWithNewer
+fields:
+  id:
+    type: BigInteger
+    validators:
+      - NotNull
+  field1:
+    type: Unicode
+  field2:
+    type: JSON
+  field3:
+    type: DateTime

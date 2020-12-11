@@ -1,0 +1,43 @@
+[tool.poetry]
+authors = ["Ken Van Haren <kenvanharen@gmail.com>"]
+description = "Template module for snapflow"
+license = "BSD-3-Clause"
+name = "snapflow-{module}"
+version = "0.1.0"
+
+[tool.poetry.dependencies]
+python = "^3.7"
+snapflow = "^0.1.5"
+
+[tool.poetry.dev-dependencies]
+black = "^19.10b0"
+flake8 = "^3.8.1"
+isort = "^4.3.21"
+mypy = "^0.770"
+pre-commit = "^2.1.1"
+pytest = "^4.6"
+pytest-cov = "^2.8.1"
+
+[tool.black]
+exclude = '''
+/(
+    \.git
+  | \.mypy_cache
+  | \.pytest_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+force_grid_wrap = 0
+include_trailing_comma = true
+line_length = 88
+multi_line_output = 3
+use_parentheses = true
+
+[build-system]
+build-backend = "poetry.masonry.api"
+requires = ["poetry>=0.12"]
