@@ -1,3 +1,5 @@
+import os
+
 from snapflow import graph, produce
 
 
@@ -21,9 +23,8 @@ def test():
         snapflow_stocks.pipes.marketstack_extract_eod_prices,
         config={"access_key": api_key, "tickers": ["AAPL"]},
     )
-    output = produce(orders, modules=[snapflow_stocks])
+    output = produce(orders, node_timelimit_seconds=1, modules=[snapflow_stocks])
     records = output.as_records_list()
-    print(records)
     assert len(records) > 0
 
 

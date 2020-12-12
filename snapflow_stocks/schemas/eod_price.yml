@@ -1,0 +1,37 @@
+name: EodPrice
+version: 1
+description: End-of-day asset price summary
+unique on:
+  - symbol
+  - exchange
+  - date
+on conflict: ReplaceWithNewer
+fields:
+  symbol:
+    type: Unicode(255)
+    validators:
+      - NotNull
+  exchange:
+    type: Unicode(255)
+  date:
+    type: Date
+    validators:
+      - NotNull
+  open:
+    type: Numeric(32,8)
+  close:
+    type: Numeric(32,8)
+  high:
+    type: Numeric(32,8)
+  low:
+    type: Numeric(32,8)
+  adj_open:
+    type: Numeric(32,8)
+  adj_close:
+    type: Numeric(32,8)
+  adj_high:
+    type: Numeric(32,8)
+  adj_low:
+    type: Numeric(32,8)
+  volume:
+    type: Numeric(32,8)
