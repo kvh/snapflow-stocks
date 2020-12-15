@@ -1,0 +1,24 @@
+name: MarketstackTicker
+version: 1
+description: Stock ticker and metadata from Marketstack
+unique on:
+  - symbol
+  - exchange
+on conflict: ReplaceWithNewer
+fields:
+  symbol:
+    type: Unicode(255)
+    validators:
+      - NotNull
+  name:
+    type: Unicode(255)
+    validators:
+      - NotNull
+  country:
+    type: Unicode(255)
+  has_eod:
+    type: Boolean
+  has_intraday:
+    type: Boolean
+  stock_exchange:
+    type: JSON
