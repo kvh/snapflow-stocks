@@ -1,16 +1,16 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date, timedelta
-from typing import Dict, List, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict, List, Optional
 
-from snapflow import PipeContext, pipe, DataBlock
+from snapflow import DataBlock, PipeContext, pipe
 from snapflow.core.data_formats import RecordsListGenerator
 from snapflow.core.extraction.connection import JsonHttpApiConnection
 from snapflow.utils.common import ensure_date
 
 if TYPE_CHECKING:
-    from snapflow_stocks import EodPrice, Ticker
+    from snapflow_stocks import EodPrice, MarketstackTicker, Ticker
 
 
 MARKETSTACK_API_BASE_URL = "http://api.marketstack.com/v1/"
@@ -19,7 +19,7 @@ MIN_DATE = date(2000, 1, 1)
 
 
 @dataclass
-class ExtractMarketstackConfig:
+class ExtractMarketstackEodConfig:
     access_key: str
     tickers: Optional[List[str]] = None
     from_date: Optional[date] = MIN_DATE
@@ -27,26 +27,29 @@ class ExtractMarketstackConfig:
 
 
 @dataclass
-class ExtractMarketstackState:
+class ExtractMarketstackEodState:
     ticker_latest_dates_extracted: Dict[str, date]
 
 
 @pipe(
     "marketstack_extract_eod_prices",
     module="stocks",
-    config_class=ExtractMarketstackConfig,
-    state_class=ExtractMarketstackState,
+    config_class=ExtractMarketstackEodConfig,
+    state_class=ExtractMarketstackEodState,
 )
 def marketstack_extract_eod_prices(
     ctx: PipeContext, tickers: Optional[DataBlock[Ticker]] = None
-) -> RecordsListGenerator[EodPrice]:  # [MarketstackEodStockPrice]:
+) -> RecordsListGenerator[EodPrice]:
     access_key = ctx.get_config_value("access_key")
     use_https = ctx.get_config_value("use_https", False)
     default_from_date = ctx.get_config_value("from_date", MIN_DATE)
     assert access_key is not None
     if tickers is None:
         tickers = ctx.get_config_value("tickers")
-        assert isinstance(tickers, list)
+        if tickers is None:
+            # We didn't get an input block for tickers AND
+            # the config is empty, so we are done
+            return
     else:
         tickers = tickers.as_dataframe()["symbol"]
     ticker_latest_dates_extracted = (
@@ -88,3 +91,56 @@ def marketstack_extract_eod_prices(
             # Setup for next page
             params["offset"] = params["offset"] + len(records)
 
+
+@dataclass
+class ExtractMarketstackTickersConfig:
+    access_key: str
+    exchanges: Optional[List[str]] = field(
+        default_factory=lambda: ["XNYS", "XNAS"]
+    )  # Default NYSE and NASDAQ
+    use_https: bool = False
+
+
+# @dataclass
+# class ExtractMarketstackTickersState:
+#     last_extracted_at: datetime
+
+
+@pipe(
+    "marketstack_extract_tickers",
+    module="stocks",
+    config_class=ExtractMarketstackTickersConfig,
+    # state_class=ExtractMarketstackTickersState,
+)
+def marketstack_extract_tickers(
+    ctx: PipeContext,
+) -> RecordsListGenerator[MarketstackTicker]:
+    access_key = ctx.get_config_value("access_key")
+    use_https = ctx.get_config_value("use_https", False)
+    default_from_date = ctx.get_config_value("from_date", MIN_DATE)
+    assert access_key is not None
+    exchanges = ctx.get_config_value("exchanges")
+    assert isinstance(exchanges, list)
+    conn = JsonHttpApiConnection()
+    if use_https:
+        endpoint_url = HTTPS_MARKETSTACK_API_BASE_URL + "tickers"
+    else:
+        endpoint_url = MARKETSTACK_API_BASE_URL + "tickers"
+    for exchange in exchanges:
+        params = {
+            "limit": 1000,
+            "offset": 0,
+            "access_key": access_key,
+            "exchange": exchange,
+        }
+        while ctx.should_continue():
+            resp = conn.get(endpoint_url, params)
+            json_resp = resp.json()
+            assert isinstance(json_resp, dict)
+            records = json_resp["data"]
+            if len(records) == 0:
+                # All done
+                break
+            yield records
+            # Setup for next page
+            params["offset"] = params["offset"] + len(records)
