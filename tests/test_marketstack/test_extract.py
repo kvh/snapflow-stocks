@@ -24,7 +24,7 @@ def test_eod():
         config={"access_key": api_key, "tickers": ["AAPL"]},
     )
     output = produce(prices, node_timelimit_seconds=1, modules=[snapflow_stocks])
-    records = output.as_records_list()
+    records = output.as_records()
     assert len(records) > 0
 
 
@@ -41,7 +41,7 @@ def test_tickers():
         config={"access_key": api_key, "exchanges": ["XNAS"]},
     )
     output = produce(tickers, node_timelimit_seconds=1, modules=[snapflow_stocks])
-    records = output.as_records_list()
+    records = output.as_records()
     assert len(records) > 0
 
 
@@ -63,8 +63,7 @@ def test_tickers_into_eod():
         upstream={"tickers": tickers},
     )
     output = produce(prices, node_timelimit_seconds=1, modules=[snapflow_stocks])
-    records = output.as_records_list()
-    print(records)
+    records = output.as_records()
     assert len(records) > 0
 
 

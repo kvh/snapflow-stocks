@@ -33,5 +33,6 @@ jobs:
       - name: Test with pytest
         env:
           MARKETSTACK_ACCESS_KEY: ${{ secrets.MARKETSTACK_ACCESS_KEY }}
+          ALPHAVANTAGE_API_KEY: ${{ secrets.ALPHAVANTAGE_API_KEY }}
         run: |
           poetry run pytest

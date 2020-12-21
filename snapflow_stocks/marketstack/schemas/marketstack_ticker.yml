@@ -3,7 +3,7 @@ version: 1
 description: Stock ticker and metadata from Marketstack
 unique on:
   - symbol
-  - exchange
+  - stock_exchange
 on conflict: ReplaceWithNewer
 fields:
   symbol:

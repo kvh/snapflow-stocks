@@ -36,6 +36,6 @@ prices = g.create_node(
     upstream={"tickers": tickers}
 )
 output = produce(prices, node_timelimit_seconds=5, modules=[snapflow_stocks])
-records = output.as_records_list()
+records = output.as_records()
 print(records)
 ```

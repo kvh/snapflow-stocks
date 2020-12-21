@@ -5,7 +5,7 @@ from datetime import date, timedelta
 from typing import TYPE_CHECKING, Dict, List, Optional
 
 from snapflow import DataBlock, PipeContext, pipe
-from snapflow.core.data_formats import RecordsListGenerator
+from snapflow.storage.data_formats import RecordsIterator
 from snapflow.core.extraction.connection import JsonHttpApiConnection
 from snapflow.utils.common import ensure_date
 
@@ -39,7 +39,7 @@ class ExtractMarketstackEodState:
 )
 def marketstack_extract_eod_prices(
     ctx: PipeContext, tickers: Optional[DataBlock[Ticker]] = None
-) -> RecordsListGenerator[EodPrice]:
+) -> RecordsIterator[EodPrice]:
     access_key = ctx.get_config_value("access_key")
     use_https = ctx.get_config_value("use_https", False)
     default_from_date = ctx.get_config_value("from_date", MIN_DATE)
@@ -114,7 +114,7 @@ class ExtractMarketstackTickersConfig:
 )
 def marketstack_extract_tickers(
     ctx: PipeContext,
-) -> RecordsListGenerator[MarketstackTicker]:
+) -> RecordsIterator[MarketstackTicker]:
     access_key = ctx.get_config_value("access_key")
     use_https = ctx.get_config_value("use_https", False)
     default_from_date = ctx.get_config_value("from_date", MIN_DATE)

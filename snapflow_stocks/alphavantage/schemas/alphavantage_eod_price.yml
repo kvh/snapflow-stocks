@@ -1,0 +1,36 @@
+name: AlphavantageEodPrice
+version: 1
+description: End-of-day prices from Alphavantage
+unique on:
+  - symbol
+  - timestamp
+on conflict: ReplaceWithNewer
+fields:
+  symbol:
+    type: Unicode(255)
+    validators:
+      - NotNull
+  timestamp:
+    type: Date
+    validators:
+      - NotNull
+  open:
+    type: Numeric(32,8)
+  close:
+    type: Numeric(32,8)
+  high:
+    type: Numeric(32,8)
+  low:
+    type: Numeric(32,8)
+  adjusted_close:
+    type: Numeric(32,8)
+  volume:
+    type: Numeric(32,8)
+  dividend_amount:
+    type: Numeric(32,8)
+  split_coefficient:
+    type: Numeric(8,8)
+implementations:
+  Ticker:
+    date: timestamp
+    adj_close: adjusted_close
