@@ -5,9 +5,10 @@ from datetime import date, timedelta
 from typing import TYPE_CHECKING, Dict, List, Optional
 
 from snapflow import DataBlock, PipeContext, pipe
-from snapflow.storage.data_formats import DelimitedFileObjectIterator
+from snapflow.storage.data_formats import RecordsIterator
 from snapflow.core.extraction.connection import JsonHttpApiConnection
 from snapflow.utils.common import ensure_date, utcnow
+from snapflow.utils.data import read_csv
 
 if TYPE_CHECKING:
     from snapflow_stocks import Ticker, AlphavantageEodPrice
@@ -69,7 +70,7 @@ def prepare_params_for_ticker(
 )
 def alphavantage_extract_eod_prices(
     ctx: PipeContext, tickers: Optional[DataBlock[Ticker]] = None
-) -> DelimitedFileObjectIterator[AlphavantageEodPrice]:
+) -> RecordsIterator[AlphavantageEodPrice]:
     api_key = ctx.get_config_value("api_key")
     assert api_key is not None
     tickers = prepare_tickers(ctx, tickers)
@@ -86,7 +87,11 @@ def alphavantage_extract_eod_prices(
         params = prepare_params_for_ticker(ticker, ticker_latest_dates_extracted)
         params["apikey"] = api_key
         resp = conn.get(ALPHAVANTAGE_API_BASE_URL, params, stream=True)
-        yield resp.raw
+        records = list(read_csv(resp.raw))
+        # Symbol not included
+        for r in records:
+            r["symbol"] = ticker
+        yield records
         # Update state
         ticker_latest_dates_extracted[ticker] = utcnow()
         ctx.emit_state_value(

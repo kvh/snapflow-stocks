@@ -1,10 +1,10 @@
 name: Ticker
 version: 1
 description: Stock ticker and metadata
-unique on:
+unique_on:
   - symbol
   - exchange
-on conflict: ReplaceWithNewer
+immutable: false
 fields:
   symbol:
     type: Unicode(255)

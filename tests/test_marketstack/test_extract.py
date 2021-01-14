@@ -25,7 +25,7 @@ def test_eod():
     )
     output = produce(prices, node_timelimit_seconds=1, modules=[snapflow_stocks])
     records = output.as_records()
-    assert len(records) > 0
+    assert len(records) >= 100
 
 
 def test_tickers():
@@ -42,7 +42,7 @@ def test_tickers():
     )
     output = produce(tickers, node_timelimit_seconds=1, modules=[snapflow_stocks])
     records = output.as_records()
-    assert len(records) > 0
+    assert len(records) >= 100
 
 
 def test_tickers_into_eod():
@@ -64,7 +64,7 @@ def test_tickers_into_eod():
     )
     output = produce(prices, node_timelimit_seconds=1, modules=[snapflow_stocks])
     records = output.as_records()
-    assert len(records) > 0
+    assert len(records) >= 100
 
 
 if __name__ == "__main__":
