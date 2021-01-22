@@ -2,6 +2,7 @@ from snapflow_stocks.alphavantage.pipes.extract import alphavantage_extract_eod_
 from typing import TypeVar
 
 from snapflow import SnapflowModule
+from snapflow_stocks.marketstack.pipes.conform import marketstack_conform_tickers
 from snapflow_stocks.marketstack.pipes.extract import (
     marketstack_extract_eod_prices,
     marketstack_extract_tickers,
@@ -29,6 +30,7 @@ module = SnapflowModule(
         alphavantage_extract_eod_prices,
         marketstack_extract_eod_prices,
         marketstack_extract_tickers,
+        marketstack_conform_tickers,
     ],
 )
 module.export()

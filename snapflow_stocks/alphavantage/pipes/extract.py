@@ -99,3 +99,4 @@ def alphavantage_extract_eod_prices(
         )
         if not ctx.should_continue():
             break
+
