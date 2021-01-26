@@ -19,6 +19,14 @@ HTTPS_MARKETSTACK_API_BASE_URL = "https://api.marketstack.com/v1/"
 MIN_DATE = date(2000, 1, 1)
 
 
+def ensure_utc(x: datetime) -> datetime:
+    try:
+        return pytz.utc.localize(x)
+    except:
+        pass
+    return x
+
+
 @dataclass
 class ExtractMarketstackEodConfig:
     access_key: str
@@ -127,6 +135,7 @@ def marketstack_extract_tickers(
         ctx.get_state_value("last_extracted_at") or "2020-01-01 00:00:00"
     )
     assert last_extracted_at is not None
+    last_extracted_at = ensure_utc(last_extracted_at)
     if utc_now() - last_extracted_at < timedelta(days=1):  # TODO: from config
         return
     conn = JsonHttpApiConnection()

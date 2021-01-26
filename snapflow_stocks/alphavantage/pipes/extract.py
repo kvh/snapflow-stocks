@@ -93,7 +93,7 @@ def alphavantage_extract_eod_prices(
             r["symbol"] = ticker
         yield records
         # Update state
-        ticker_latest_dates_extracted[ticker] = utcnow()
+        ticker_latest_dates_extracted[ticker] = utcnow().date()
         ctx.emit_state_value(
             "ticker_latest_dates_extracted", ticker_latest_dates_extracted
         )
