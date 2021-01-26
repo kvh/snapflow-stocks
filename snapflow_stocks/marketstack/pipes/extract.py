@@ -5,6 +5,7 @@ from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
 from typing import TYPE_CHECKING, Dict, List, Optional
 
+import pytz
 from snapflow import DataBlock, PipeContext, pipe
 from snapflow.storage.data_formats import RecordsIterator
 from snapflow.core.extraction.connection import JsonHttpApiConnection
