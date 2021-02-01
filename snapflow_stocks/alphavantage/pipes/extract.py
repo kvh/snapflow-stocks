@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import time
 from dataclasses import dataclass, field
 from datetime import date, timedelta
 from typing import TYPE_CHECKING, Dict, List, Optional
@@ -37,7 +38,8 @@ def prepare_tickers(
         if tickers is None:
             return
     else:
-        tickers = tickers.as_dataframe()["symbol"]
+        df = tickers.as_dataframe()
+        tickers = df["symbol"]
     return tickers
 
 
@@ -88,6 +90,15 @@ def alphavantage_extract_eod_prices(
         params["apikey"] = api_key
         resp = conn.get(ALPHAVANTAGE_API_BASE_URL, params, stream=True)
         records = list(read_csv(resp.raw))
+        if records:
+            # Alphavantage returns 200 and json error message on failure
+            if "Error Message" in str(records[0]):
+                # TODO: Log this failure?
+                print(f"Error for ticker {ticker}: {records[0]}")
+                continue
+            if "calls per minute" in str(records[0]):
+                time.sleep(60)
+
         # Symbol not included
         for r in records:
             r["symbol"] = ticker
