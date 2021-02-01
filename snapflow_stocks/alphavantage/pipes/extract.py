@@ -84,10 +84,8 @@ def alphavantage_extract_eod_prices(
         ctx.get_state_value("ticker_latest_dates_extracted") or {}
     )
     conn = JsonHttpApiConnection()
-    for ticker in tickers:
-        assert isinstance(ticker, str)
-        params = prepare_params_for_ticker(ticker, ticker_latest_dates_extracted)
-        params["apikey"] = api_key
+
+    def fetch_prices(params):
         resp = conn.get(ALPHAVANTAGE_API_BASE_URL, params, stream=True)
         records = list(read_csv(resp.raw))
         if records:
@@ -95,10 +93,19 @@ def alphavantage_extract_eod_prices(
             if "Error Message" in str(records[0]):
                 # TODO: Log this failure?
                 print(f"Error for ticker {ticker}: {records[0]}")
-                continue
+                return None
             if "calls per minute" in str(records[0]):
                 time.sleep(60)
+                return fetch_prices(params)
+        return records
 
+    for ticker in tickers:
+        assert isinstance(ticker, str)
+        params = prepare_params_for_ticker(ticker, ticker_latest_dates_extracted)
+        params["apikey"] = api_key
+        records = fetch_prices(params)
+        if not records:
+            continue
         # Symbol not included
         for r in records:
             r["symbol"] = ticker
