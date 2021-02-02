@@ -6,7 +6,7 @@ from datetime import date, timedelta
 from typing import TYPE_CHECKING, Dict, List, Optional
 
 from snapflow import DataBlock, PipeContext, pipe
-from snapflow.storage.data_formats import RecordsIterator
+from snapflow.storage.data_formats import RecordsIterator, Records
 from snapflow.core.extraction.connection import JsonHttpApiConnection
 from snapflow.utils.common import ensure_date, utcnow
 from snapflow.utils.data import read_csv
@@ -85,7 +85,9 @@ def alphavantage_extract_eod_prices(
     )
     conn = JsonHttpApiConnection()
 
-    def fetch_prices(params):
+    def fetch_prices(params: Dict, tries: int = 0) -> Optional[Records]:
+        if tries > 2:
+            return None
         resp = conn.get(ALPHAVANTAGE_API_BASE_URL, params, stream=True)
         records = list(read_csv(resp.raw))
         if records:
@@ -96,7 +98,7 @@ def alphavantage_extract_eod_prices(
                 return None
             if "calls per minute" in str(records[0]):
                 time.sleep(60)
-                return fetch_prices(params)
+                return fetch_prices(params, tries=tries + 1)
         return records
 
     for ticker in tickers:
