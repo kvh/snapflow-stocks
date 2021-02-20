@@ -152,6 +152,8 @@ def alphavantage_extract_company_overview(
         ctx.get_state_value("ticker_latest_dates_extracted") or {}
     )
     conn = JsonHttpApiConnection()
+    batch_size = 100
+    records = []
     for i, ticker in enumerate(tickers):
         assert isinstance(ticker, str)
         latest_date_extracted = ensure_datetime(
@@ -171,13 +173,16 @@ def alphavantage_extract_company_overview(
         record = resp.json()
         if not record:
             continue
-        yield [record]
         # Clean up json keys to be more DB friendly
         record = {title_to_snake_case(k): v for k, v in record.items()}
-        # Update state
-        ticker_latest_dates_extracted[ticker] = utcnow()
-        ctx.emit_state_value(
-            "ticker_latest_dates_extracted", ticker_latest_dates_extracted
-        )
-        if not ctx.should_continue():
-            break
+        records.append(record)
+        if len(records) >= batch_size or i == len(tickers) - 1:
+            yield records
+            # Update state
+            ticker_latest_dates_extracted[ticker] = utcnow()
+            ctx.emit_state_value(
+                "ticker_latest_dates_extracted", ticker_latest_dates_extracted
+            )
+            if not ctx.should_continue():
+                break
+            records = []
