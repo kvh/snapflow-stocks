@@ -1,5 +1,4 @@
 from __future__ import annotations
-from base.utils import utc_now
 
 from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
@@ -9,7 +8,7 @@ import pytz
 from snapflow import DataBlock, PipeContext, pipe
 from snapflow.storage.data_formats import RecordsIterator
 from snapflow.core.extraction.connection import JsonHttpApiConnection
-from snapflow.utils.common import ensure_date, ensure_datetime
+from snapflow.utils.common import ensure_date, ensure_datetime, utcnow
 
 if TYPE_CHECKING:
     from snapflow_stocks import EodPrice, MarketstackTicker, Ticker
@@ -137,7 +136,7 @@ def marketstack_extract_tickers(
     )
     assert last_extracted_at is not None
     last_extracted_at = ensure_utc(last_extracted_at)
-    if utc_now() - last_extracted_at < timedelta(days=1):  # TODO: from config
+    if utcnow() - last_extracted_at < timedelta(days=1):  # TODO: from config
         return
     conn = JsonHttpApiConnection()
     if use_https:
