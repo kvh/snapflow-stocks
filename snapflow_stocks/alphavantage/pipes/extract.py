@@ -15,7 +15,7 @@ from snapflow.utils.common import (
     title_to_snake_case,
     utcnow,
 )
-from snapflow.utils.data import read_csv
+from snapflow.utils.data import clean_record, read_csv
 
 if TYPE_CHECKING:
     from snapflow_stocks import (
@@ -173,8 +173,8 @@ def alphavantage_extract_company_overview(
         record = resp.json()
         if not record:
             continue
-        # Clean up json keys to be more DB friendly
-        record = {title_to_snake_case(k): v for k, v in record.items()}
+        # Clean up json keys to be more DB friendly and process "None" values
+        record = clean_record(record)
         records.append(record)
         if len(records) >= batch_size or i == len(tickers) - 1:
             yield records
