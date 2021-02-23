@@ -32,7 +32,7 @@ fields:
   diluted_epsttm:
     type: Unicode(255)
   dividend_date:
-    type: DateTime
+    type: Date
   dividend_per_share:
     type: Unicode(255)
   dividend_yield:
@@ -46,7 +46,7 @@ fields:
   evto_revenue:
     type: Unicode(255)
   ex_dividend_date:
-    type: DateTime
+    type: Date
   exchange:
     type: Unicode(255)
   fiscal_year_end:
@@ -64,11 +64,11 @@ fields:
   industry:
     type: Unicode(255)
   last_split_date:
-    type: DateTime
+    type: Date
   last_split_factor:
     type: Unicode(255)
   latest_quarter:
-    type: DateTime
+    type: Date
   market_capitalization:
     type: Unicode(255)
   name:
