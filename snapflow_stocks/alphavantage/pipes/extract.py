@@ -171,7 +171,11 @@ def alphavantage_extract_company_overview(
         }
         resp = conn.get(ALPHAVANTAGE_API_BASE_URL, params, stream=True)
         record = resp.json()
-        if not record:
+        if not record or len(record) < 3:
+            # Alphavantage sends a 200 ok with a JSON response for error or rate limit:
+            """
+            {"Note": "Thank you for using Alpha Vantage! Our standard API call .... "}
+            """
             continue
         # Clean up json keys to be more DB friendly and process "None" values
         record = clean_record(record)
