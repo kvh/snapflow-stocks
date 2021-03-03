@@ -3,10 +3,14 @@ version: 1
 description: Stock ticker and metadata from Marketstack
 unique_on:
   - symbol
-  - stock_exchange
+  - exchange_acronym
 immutable: false
 fields:
   symbol:
+    type: Unicode(255)
+    validators:
+      - NotNull
+  exchange_acronym:
     type: Unicode(255)
     validators:
       - NotNull

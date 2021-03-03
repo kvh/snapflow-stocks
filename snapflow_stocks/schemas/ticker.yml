@@ -10,9 +10,7 @@ fields:
     type: Unicode(255)
     validators:
       - NotNull
-  exchange:
-    type: Unicode(255)
-    validators:
-      - NotNull
   name:
+    type: Unicode(255)
+  exchange:
     type: Unicode(255)

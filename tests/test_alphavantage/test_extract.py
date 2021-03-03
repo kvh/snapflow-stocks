@@ -28,5 +28,23 @@ def test_eod():
     assert len(records) > 0
 
 
+def test_overview():
+    import snapflow_stocks
+
+    api_key = ensure_api_key()
+
+    g = graph()
+
+    # Initial graph
+    overview = g.node(
+        snapflow_stocks.pipes.alphavantage_extract_company_overview,
+        config={"api_key": api_key, "tickers": ["AAPL"]},
+    )
+    output = produce(overview, node_timelimit_seconds=1, modules=[snapflow_stocks])
+    records = output.as_records()
+    assert len(records) == 1
+
+
 if __name__ == "__main__":
     test_eod()
+    test_overview()

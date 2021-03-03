@@ -1,13 +1,15 @@
 from __future__ import annotations
+from base.utils import utc_now
 
 from dataclasses import dataclass, field
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from typing import TYPE_CHECKING, Dict, List, Optional
 
 from snapflow import DataBlock, SnapContext, Snap, Param
+import pytz
 from snapflow.storage.data_formats import RecordsIterator
 from snapflow.core.extraction.connection import JsonHttpApiConnection
-from snapflow.utils.common import ensure_date
+from snapflow.utils.common import ensure_date, ensure_datetime
 
 if TYPE_CHECKING:
     from snapflow_stocks import EodPrice, MarketstackTicker, Ticker
@@ -87,15 +89,15 @@ def marketstack_extract_eod_prices(
             params["offset"] = params["offset"] + len(records)
 
 
-# @dataclass
-# class ExtractMarketstackTickersState:
-#     last_extracted_at: datetime
+@dataclass
+class ExtractMarketstackTickersState:
+    last_extracted_at: datetime
 
 
 @Snap(
     "marketstack_extract_tickers",
     module="stocks",
-    # state_class=ExtractMarketstackTickersState,
+    state_class=ExtractMarketstackTickersState,
 )
 @Param("access_key", "str")
 @Param("exchanges", "json", default=["XNYS", "XNAS"])
@@ -109,6 +111,13 @@ def marketstack_extract_tickers(
     assert access_key is not None
     exchanges = ctx.get_param("exchanges")
     assert isinstance(exchanges, list)
+    last_extracted_at = ensure_datetime(
+        ctx.get_state_value("last_extracted_at") or "2020-01-01 00:00:00"
+    )
+    assert last_extracted_at is not None
+    last_extracted_at = ensure_utc(last_extracted_at)
+    if utc_now() - last_extracted_at < timedelta(days=1):  # TODO: from config
+        return
     conn = JsonHttpApiConnection()
     if use_https:
         endpoint_url = HTTPS_MARKETSTACK_API_BASE_URL + "tickers"
@@ -129,6 +138,10 @@ def marketstack_extract_tickers(
             if len(records) == 0:
                 # All done
                 break
+            # Add a flattened exchange indicator
+            for r in records:
+                r["exchange_acronym"] = r.get("stock_exchange", {}).get("acronym")
             yield records
             # Setup for next page
             params["offset"] = params["offset"] + len(records)
+    ctx.emit_state_value("last_extracted_at", utc_now())
