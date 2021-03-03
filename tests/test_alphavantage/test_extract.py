@@ -37,8 +37,8 @@ def test_overview():
 
     # Initial graph
     overview = g.node(
-        snapflow_stocks.pipes.alphavantage_extract_company_overview,
-        config={"api_key": api_key, "tickers": ["AAPL"]},
+        snapflow_stocks.snaps.alphavantage_extract_company_overview,
+        params={"api_key": api_key, "tickers": ["AAPL"]},
     )
     output = produce(overview, node_timelimit_seconds=1, modules=[snapflow_stocks])
     records = output.as_records()

@@ -1,17 +1,15 @@
+from typing import TypeVar
+
+from snapflow import SnapflowModule
 from snapflow_stocks.alphavantage.snaps.extract import (
     alphavantage_extract_company_overview,
     alphavantage_extract_eod_prices,
 )
-from typing import TypeVar
-
-from snapflow import SnapflowModule
+from snapflow_stocks.marketstack.snaps.conform import marketstack_conform_tickers
 from snapflow_stocks.marketstack.snaps.extract import (
     marketstack_extract_eod_prices,
     marketstack_extract_tickers,
 )
-
-from snapflow import SnapflowModule
-from snapflow_stocks.marketstack.snaps.conform import marketstack_conform_tickers
 
 # Schemas (for type hinting in python)
 Ticker = TypeVar("Ticker")

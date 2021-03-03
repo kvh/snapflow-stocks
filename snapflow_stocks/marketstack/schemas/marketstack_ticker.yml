@@ -26,4 +26,3 @@ fields:
     type: Boolean
   stock_exchange:
     type: JSON
-    
