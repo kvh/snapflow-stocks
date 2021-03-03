@@ -1,0 +1,125 @@
+name: AlphavantageCompanyOverview
+version: 1.0
+description: Overview of company financial and equity metrics from latest reported quarter, from Alphavantage
+unique_on:
+  - symbol
+immutable: False
+fields:
+  200_day_moving_average:
+    type: Unicode(255)
+  50_day_moving_average:
+    type: Unicode(255)
+  52_week_high:
+    type: Unicode(255)
+  52_week_low:
+    type: Unicode(255)
+  address:
+    type: Unicode(255)
+  analyst_target_price:
+    type: Unicode(255)
+  asset_type:
+    type: Unicode(255)
+  beta:
+    type: Unicode(255)
+  book_value:
+    type: Unicode(255)
+  country:
+    type: Unicode(255)
+  currency:
+    type: Unicode(255)
+  description:
+    type: UnicodeText
+  diluted_epsttm:
+    type: Unicode(255)
+  dividend_date:
+    type: DateTime
+  dividend_per_share:
+    type: Unicode(255)
+  dividend_yield:
+    type: Unicode(255)
+  ebitda:
+    type: Unicode(255)
+  eps:
+    type: Unicode(255)
+  ev_to_ebitda:
+    type: Unicode(255)
+  ev_to_revenue:
+    type: Unicode(255)
+  ex_dividend_date:
+    type: DateTime
+  exchange:
+    type: Unicode(255)
+  fiscal_year_end:
+    type: Unicode(255)
+  forward_annual_dividend_rate:
+    type: Unicode(255)
+  forward_annual_dividend_yield:
+    type: Unicode(255)
+  forward_pe:
+    type: Unicode(255)
+  full_time_employees:
+    type: Unicode(255)
+  gross_profit_ttm:
+    type: Unicode(255)
+  industry:
+    type: Unicode(255)
+  last_split_date:
+    type: DateTime
+  last_split_factor:
+    type: Unicode(255)
+  latest_quarter:
+    type: DateTime
+  market_capitalization:
+    type: Unicode(255)
+  name:
+    type: Unicode(255)
+  operating_margin_ttm:
+    type: Unicode(255)
+  payout_ratio:
+    type: Unicode(255)
+  pegratio:
+    type: Unicode(255)
+  peratio:
+    type: Unicode(255)
+  percent_insiders:
+    type: Unicode(255)
+  percent_institutions:
+    type: Unicode(255)
+  price_to_book_ratio:
+    type: Unicode(255)
+  price_to_sales_ratio_ttm:
+    type: Unicode(255)
+  profit_margin:
+    type: Unicode(255)
+  quarterly_earnings_growth_yoy:
+    type: Unicode(255)
+  quarterly_revenue_growth_yoy:
+    type: Unicode(255)
+  return_on_assets_ttm:
+    type: Unicode(255)
+  return_on_equity_ttm:
+    type: Unicode(255)
+  revenue_per_share_ttm:
+    type: Unicode(255)
+  revenue_ttm:
+    type: Unicode(255)
+  sector:
+    type: Unicode(255)
+  shares_float:
+    type: Unicode(255)
+  shares_outstanding:
+    type: Unicode(255)
+  shares_short:
+    type: Unicode(255)
+  shares_short_prior_month:
+    type: Unicode(255)
+  short_percent_float:
+    type: Unicode(255)
+  short_percent_outstanding:
+    type: Unicode(255)
+  short_ratio:
+    type: Unicode(255)
+  symbol:
+    type: Unicode(255)
+  trailing_pe:
+    type: Unicode(255)

@@ -27,12 +27,12 @@ g = graph()
 
 # Initial graph
 tickers = g.create_node(
-    snapflow_stocks.pipes.marketstack_extract_tickers,
-    config={"access_key": "xxxxx", "exchanges": ["XNAS", "XNYS"]},
+    snapflow_stocks.snaps.marketstack_extract_tickers,
+    params={"access_key": "xxxxx", "exchanges": ["XNAS", "XNYS"]},
 )
 prices = g.create_node(
-    snapflow_stocks.pipes.marketstack_extract_eod_prices,
-    config={"access_key": api_key},
+    snapflow_stocks.snaps.marketstack_extract_eod_prices,
+    params={"access_key": api_key},
     upstream={"tickers": tickers}
 )
 output = produce(prices, node_timelimit_seconds=5, modules=[snapflow_stocks])

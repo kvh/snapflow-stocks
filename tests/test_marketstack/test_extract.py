@@ -20,8 +20,8 @@ def test_eod():
 
     # Initial graph
     prices = g.create_node(
-        snapflow_stocks.pipes.marketstack_extract_eod_prices,
-        config={"access_key": api_key, "tickers": ["AAPL"]},
+        snapflow_stocks.snaps.marketstack_extract_eod_prices,
+        params={"access_key": api_key, "tickers": ["AAPL"]},
     )
     output = produce(prices, node_timelimit_seconds=1, modules=[snapflow_stocks])
     records = output.as_records()
@@ -37,8 +37,8 @@ def test_tickers():
 
     # Initial graph
     tickers = g.create_node(
-        snapflow_stocks.pipes.marketstack_extract_tickers,
-        config={"access_key": api_key, "exchanges": ["XNAS"]},
+        snapflow_stocks.snaps.marketstack_extract_tickers,
+        params={"access_key": api_key, "exchanges": ["XNAS"]},
     )
     output = produce(tickers, node_timelimit_seconds=1, modules=[snapflow_stocks])
     records = output.as_records()
@@ -54,12 +54,12 @@ def test_tickers_into_eod():
 
     # Initial graph
     tickers = g.create_node(
-        snapflow_stocks.pipes.marketstack_extract_tickers,
-        config={"access_key": api_key, "exchanges": ["XNAS"]},
+        snapflow_stocks.snaps.marketstack_extract_tickers,
+        params={"access_key": api_key, "exchanges": ["XNAS"]},
     )
     prices = g.create_node(
-        snapflow_stocks.pipes.marketstack_extract_eod_prices,
-        config={"access_key": api_key},
+        snapflow_stocks.snaps.marketstack_extract_eod_prices,
+        params={"access_key": api_key},
         upstream={"tickers": tickers},
     )
     output = produce(prices, node_timelimit_seconds=1, modules=[snapflow_stocks])

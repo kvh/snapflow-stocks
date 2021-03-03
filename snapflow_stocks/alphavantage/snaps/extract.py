@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from datetime import date, timedelta
 from typing import TYPE_CHECKING, Dict, List, Optional
 
-from snapflow import DataBlock, PipeContext, pipe
+from snapflow import DataBlock, SnapContext, Snap, Param
 from snapflow.storage.data_formats import RecordsIterator
 from snapflow.core.extraction.connection import JsonHttpApiConnection
 from snapflow.utils.common import ensure_date, utcnow
@@ -19,21 +19,15 @@ MIN_DATE = date(2000, 1, 1)
 
 
 @dataclass
-class ExtractAlphavantageEodConfig:
-    api_key: str
-    tickers: Optional[List[str]] = None
-
-
-@dataclass
 class ExtractAlphavantageEodState:
     ticker_latest_dates_extracted: Dict[str, date]
 
 
 def prepare_tickers(
-    ctx: PipeContext, tickers: Optional[DataBlock[Ticker]] = None
+    ctx: SnapContext, tickers: Optional[DataBlock[Ticker]] = None
 ) -> Optional[List[str]]:
     if tickers is None:
-        tickers = ctx.get_config_value("tickers")
+        tickers = ctx.get_param("tickers")
         if tickers is None:
             return
     else:
@@ -62,21 +56,22 @@ def prepare_params_for_ticker(
     return params
 
 
-@pipe(
+@Snap(
     "alphavantage_extract_eod_prices",
     module="stocks",
-    config_class=ExtractAlphavantageEodConfig,
     state_class=ExtractAlphavantageEodState,
 )
+@Param("api_key", "str")
+@Param("tickers", "json", required=False)
 def alphavantage_extract_eod_prices(
-    ctx: PipeContext, tickers: Optional[DataBlock[Ticker]] = None
+    ctx: SnapContext, tickers: Optional[DataBlock[Ticker]] = None
 ) -> RecordsIterator[AlphavantageEodPrice]:
-    api_key = ctx.get_config_value("api_key")
+    api_key = ctx.get_param("api_key")
     assert api_key is not None
     tickers = prepare_tickers(ctx, tickers)
     if tickers is None:
         # We didn't get an input block for tickers AND
-        # the config is empty, so we are done
+        # the params is empty, so we are done
         return None
     ticker_latest_dates_extracted = (
         ctx.get_state_value("ticker_latest_dates_extracted") or {}

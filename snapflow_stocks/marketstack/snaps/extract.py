@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from datetime import date, timedelta
 from typing import TYPE_CHECKING, Dict, List, Optional
 
-from snapflow import DataBlock, PipeContext, pipe
+from snapflow import DataBlock, SnapContext, Snap, Param
 from snapflow.storage.data_formats import RecordsIterator
 from snapflow.core.extraction.connection import JsonHttpApiConnection
 from snapflow.utils.common import ensure_date
@@ -19,36 +19,31 @@ MIN_DATE = date(2000, 1, 1)
 
 
 @dataclass
-class ExtractMarketstackEodConfig:
-    access_key: str
-    tickers: Optional[List[str]] = None
-    from_date: Optional[date] = MIN_DATE
-    use_https: bool = False
-
-
-@dataclass
 class ExtractMarketstackEodState:
     ticker_latest_dates_extracted: Dict[str, date]
 
 
-@pipe(
+@Snap(
     "marketstack_extract_eod_prices",
     module="stocks",
-    config_class=ExtractMarketstackEodConfig,
     state_class=ExtractMarketstackEodState,
 )
+@Param("access_key", "str")
+@Param("tickers", "json", required=False)
+@Param("from_date", "date", default=MIN_DATE)
+@Param("use_https", "bool", default=False)
 def marketstack_extract_eod_prices(
-    ctx: PipeContext, tickers: Optional[DataBlock[Ticker]] = None
+    ctx: SnapContext, tickers: Optional[DataBlock[Ticker]] = None
 ) -> RecordsIterator[EodPrice]:
-    access_key = ctx.get_config_value("access_key")
-    use_https = ctx.get_config_value("use_https", False)
-    default_from_date = ctx.get_config_value("from_date", MIN_DATE)
+    access_key = ctx.get_param("access_key")
+    use_https = ctx.get_param("use_https", False)
+    default_from_date = ctx.get_param("from_date", MIN_DATE)
     assert access_key is not None
     if tickers is None:
-        tickers = ctx.get_config_value("tickers")
+        tickers = ctx.get_param("tickers")
         if tickers is None:
             # We didn't get an input block for tickers AND
-            # the config is empty, so we are done
+            # the params is empty, so we are done
             return
     else:
         tickers = tickers.as_dataframe()["symbol"]
@@ -92,34 +87,27 @@ def marketstack_extract_eod_prices(
             params["offset"] = params["offset"] + len(records)
 
 
-@dataclass
-class ExtractMarketstackTickersConfig:
-    access_key: str
-    exchanges: Optional[List[str]] = field(
-        default_factory=lambda: ["XNYS", "XNAS"]
-    )  # Default NYSE and NASDAQ
-    use_https: bool = False
-
-
 # @dataclass
 # class ExtractMarketstackTickersState:
 #     last_extracted_at: datetime
 
 
-@pipe(
+@Snap(
     "marketstack_extract_tickers",
     module="stocks",
-    config_class=ExtractMarketstackTickersConfig,
     # state_class=ExtractMarketstackTickersState,
 )
+@Param("access_key", "str")
+@Param("exchanges", "json", default=["XNYS", "XNAS"])
+@Param("use_https", "bool", default=False)
 def marketstack_extract_tickers(
-    ctx: PipeContext,
+    ctx: SnapContext,
 ) -> RecordsIterator[MarketstackTicker]:
-    access_key = ctx.get_config_value("access_key")
-    use_https = ctx.get_config_value("use_https", False)
-    default_from_date = ctx.get_config_value("from_date", MIN_DATE)
+    access_key = ctx.get_param("access_key")
+    use_https = ctx.get_param("use_https", False)
+    default_from_date = ctx.get_param("from_date", MIN_DATE)
     assert access_key is not None
-    exchanges = ctx.get_config_value("exchanges")
+    exchanges = ctx.get_param("exchanges")
     assert isinstance(exchanges, list)
     conn = JsonHttpApiConnection()
     if use_https:

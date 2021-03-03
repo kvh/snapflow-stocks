@@ -1,12 +1,12 @@
-from snapflow_stocks.alphavantage.pipes.extract import alphavantage_extract_eod_prices
+from snapflow_stocks.alphavantage.snaps.extract import alphavantage_extract_eod_prices
 from typing import TypeVar
 
 from snapflow import SnapflowModule
-from snapflow_stocks.marketstack.pipes.extract import (
+from snapflow_stocks.marketstack.snaps.extract import (
     marketstack_extract_eod_prices,
     marketstack_extract_tickers,
 )
-from snapflow_stocks.alphavantage.pipes.extract import alphavantage_extract_eod_prices
+from snapflow_stocks.alphavantage.snaps.extract import alphavantage_extract_eod_prices
 
 # Schemas (for type hinting in python)
 Ticker = TypeVar("Ticker")
@@ -25,7 +25,7 @@ module = SnapflowModule(
         "alphavantage/schemas/alphavantage_eod_price.yml",
         "marketstack/schemas/marketstack_ticker.yml",
     ],
-    pipes=[
+    snaps=[
         alphavantage_extract_eod_prices,
         marketstack_extract_eod_prices,
         marketstack_extract_tickers,
