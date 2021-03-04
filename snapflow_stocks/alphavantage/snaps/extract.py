@@ -32,7 +32,7 @@ MIN_DATETIME = datetime(2000, 1, 1)
 
 
 @dataclass
-class ExtractAlphavantageEodState:
+class ExtractAlphavantageState:
     ticker_latest_dates_extracted: Dict[str, date]
 
 
@@ -73,7 +73,7 @@ def prepare_params_for_ticker(
 @Snap(
     "alphavantage_extract_eod_prices",
     module="stocks",
-    state_class=ExtractAlphavantageEodState,
+    state_class=ExtractAlphavantageState,
 )
 @Param("api_key", "str")
 @Param("tickers", "json", required=False)
@@ -132,9 +132,10 @@ def alphavantage_extract_eod_prices(
 @Snap(
     "alphavantage_extract_company_overview",
     module="stocks",
-    state_class=ExtractAlphavantageEodState,
+    state_class=ExtractAlphavantageState,
 )
 @Param("api_key", "str")
+@Param("tickers", "json", required=False)
 @Input("tickers", schema="Ticker", reference=True, required=False)
 def alphavantage_extract_company_overview(
     ctx: SnapContext, tickers: Optional[DataBlock[Ticker]] = None
