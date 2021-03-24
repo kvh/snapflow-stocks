@@ -21,25 +21,25 @@ MIN_DATE = date(2000, 1, 1)
 
 
 @dataclass
-class ExtractMarketstackEodState:
-    ticker_latest_dates_extracted: Dict[str, date]
+class ImportMarketstackEodState:
+    ticker_latest_dates_imported: Dict[str, date]
 
 
 @Snap(
-    "marketstack_extract_eod_prices",
+    "marketstack_import_eod_prices",
     module="stocks",
-    state_class=ExtractMarketstackEodState,
+    state_class=ImportMarketstackEodState,
+    display_name="Import Marketstack EOD prices",
 )
 @Param("access_key", "str")
 @Param("tickers", "json", required=False)
 @Param("from_date", "date", default=MIN_DATE)
-@Param("use_https", "bool", default=False)
 @Input("tickers", schema="Ticker", reference=True, required=False)
-def marketstack_extract_eod_prices(
+def marketstack_import_eod_prices(
     ctx: SnapContext, tickers: Optional[DataBlock[Ticker]] = None
 ) -> RecordsIterator[EodPrice]:
     access_key = ctx.get_param("access_key")
-    use_https = ctx.get_param("use_https", False)
+    use_https = False  # TODO: when do we want this True?
     default_from_date = ctx.get_param("from_date", MIN_DATE)
     assert access_key is not None
     if tickers is None:
@@ -50,8 +50,8 @@ def marketstack_extract_eod_prices(
             return
     else:
         tickers = tickers.as_dataframe()["symbol"]
-    ticker_latest_dates_extracted = (
-        ctx.get_state_value("ticker_latest_dates_extracted") or {}
+    ticker_latest_dates_imported = (
+        ctx.get_state_value("ticker_latest_dates_imported") or {}
     )
     conn = JsonHttpApiConnection(date_format="%Y-%m-%d")
     if use_https:
@@ -60,16 +60,16 @@ def marketstack_extract_eod_prices(
         endpoint_url = MARKETSTACK_API_BASE_URL + "eod"
     for ticker in tickers:
         assert isinstance(ticker, str)
-        latest_date_extracted = ensure_date(
-            ticker_latest_dates_extracted.get(ticker, default_from_date)
+        latest_date_imported = ensure_date(
+            ticker_latest_dates_imported.get(ticker, default_from_date)
         )
-        max_date = latest_date_extracted
+        max_date = latest_date_imported
         params = {
             "limit": 1000,
             "offset": 0,
             "access_key": access_key,
             "symbols": ticker,
-            "date_from": latest_date_extracted,
+            "date_from": latest_date_imported,
         }
         while ctx.should_continue():
             resp = conn.get(endpoint_url, params)
@@ -82,42 +82,40 @@ def marketstack_extract_eod_prices(
             yield records
             # Update state
             max_date = max(max_date, max(ensure_date(r["date"]) for r in records))
-            ticker_latest_dates_extracted[ticker] = max_date + timedelta(days=1)
+            ticker_latest_dates_imported[ticker] = max_date + timedelta(days=1)
             ctx.emit_state_value(
-                "ticker_latest_dates_extracted", ticker_latest_dates_extracted
+                "ticker_latest_dates_imported", ticker_latest_dates_imported
             )
             # Setup for next page
             params["offset"] = params["offset"] + len(records)
 
 
 @dataclass
-class ExtractMarketstackTickersState:
-    last_extracted_at: datetime
+class ImportMarketstackTickersState:
+    last_imported_at: datetime
 
 
 @Snap(
-    "marketstack_extract_tickers",
+    "marketstack_import_tickers",
     module="stocks",
-    state_class=ExtractMarketstackTickersState,
+    state_class=ImportMarketstackTickersState,
+    display_name="Import Marketstack tickers",
 )
 @Param("access_key", "str")
 @Param("exchanges", "json", default=["XNYS", "XNAS"])
-@Param("use_https", "bool", default=False)
-def marketstack_extract_tickers(
-    ctx: SnapContext,
-) -> RecordsIterator[MarketstackTicker]:
+def marketstack_import_tickers(ctx: SnapContext,) -> RecordsIterator[MarketstackTicker]:
     access_key = ctx.get_param("access_key")
-    use_https = ctx.get_param("use_https", False)
+    use_https = False  # TODO: when do we want this True?
     # default_from_date = ctx.get_param("from_date", MIN_DATE)
     assert access_key is not None
     exchanges = ctx.get_param("exchanges")
     assert isinstance(exchanges, list)
-    last_extracted_at = ensure_datetime(
-        ctx.get_state_value("last_extracted_at") or "2020-01-01 00:00:00"
+    last_imported_at = ensure_datetime(
+        ctx.get_state_value("last_imported_at") or "2020-01-01 00:00:00"
     )
-    assert last_extracted_at is not None
-    last_extracted_at = ensure_utc(last_extracted_at)
-    if utcnow() - last_extracted_at < timedelta(days=1):  # TODO: from config
+    assert last_imported_at is not None
+    last_imported_at = ensure_utc(last_imported_at)
+    if utcnow() - last_imported_at < timedelta(days=1):  # TODO: from config
         return
     conn = JsonHttpApiConnection()
     if use_https:
@@ -145,4 +143,4 @@ def marketstack_extract_tickers(
             yield records
             # Setup for next page
             params["offset"] = params["offset"] + len(records)
-    ctx.emit_state_value("last_extracted_at", utcnow())
+    ctx.emit_state_value("last_imported_at", utcnow())

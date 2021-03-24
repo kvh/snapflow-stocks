@@ -1,14 +1,14 @@
 from typing import TypeVar
 
 from snapflow import SnapflowModule
-from snapflow_stocks.alphavantage.snaps.extract import (
-    alphavantage_extract_company_overview,
-    alphavantage_extract_eod_prices,
+from snapflow_stocks.alphavantage.snaps.import import (
+    alphavantage_import_company_overview,
+    alphavantage_import_eod_prices,
 )
 from snapflow_stocks.marketstack.snaps.conform import marketstack_conform_tickers
-from snapflow_stocks.marketstack.snaps.extract import (
-    marketstack_extract_eod_prices,
-    marketstack_extract_tickers,
+from snapflow_stocks.marketstack.snaps.import import (
+    marketstack_import_eod_prices,
+    marketstack_import_tickers,
 )
 
 # Schemas (for type hinting in python)
@@ -31,10 +31,10 @@ module = SnapflowModule(
         "marketstack/schemas/marketstack_ticker.yml",
     ],
     snaps=[
-        alphavantage_extract_eod_prices,
-        alphavantage_extract_company_overview,
-        marketstack_extract_eod_prices,
-        marketstack_extract_tickers,
+        alphavantage_import_eod_prices,
+        alphavantage_import_company_overview,
+        marketstack_import_eod_prices,
+        marketstack_import_tickers,
         marketstack_conform_tickers,
     ],
 )

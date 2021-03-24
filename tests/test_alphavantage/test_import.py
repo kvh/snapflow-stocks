@@ -20,7 +20,7 @@ def test_eod():
 
     # Initial graph
     prices = g.node(
-        snapflow_stocks.snaps.alphavantage_extract_eod_prices,
+        snapflow_stocks.snaps.alphavantage_import_eod_prices,
         params={"api_key": api_key, "tickers": ["AAPL"]},
     )
     output = produce(prices, node_timelimit_seconds=1, modules=[snapflow_stocks])
@@ -37,7 +37,7 @@ def test_overview():
 
     # Initial graph
     overview = g.node(
-        snapflow_stocks.snaps.alphavantage_extract_company_overview,
+        snapflow_stocks.snaps.alphavantage_import_company_overview,
         params={"api_key": api_key, "tickers": ["AAPL"]},
     )
     output = produce(overview, node_timelimit_seconds=1, modules=[snapflow_stocks])

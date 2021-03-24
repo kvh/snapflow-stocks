@@ -32,8 +32,8 @@ MIN_DATETIME = datetime(2000, 1, 1)
 
 
 @dataclass
-class ExtractAlphavantageState:
-    ticker_latest_dates_extracted: Dict[str, date]
+class ImportAlphavantageEodState:
+    ticker_latest_dates_imported: Dict[str, date]
 
 
 def prepare_tickers(
@@ -50,12 +50,12 @@ def prepare_tickers(
 
 
 def prepare_params_for_ticker(
-    ticker: str, ticker_latest_dates_extracted: Dict[str, date]
+    ticker: str, ticker_latest_dates_imported: Dict[str, date]
 ) -> Dict:
-    latest_date_extracted = ensure_date(
-        ticker_latest_dates_extracted.get(ticker, MIN_DATE)
+    latest_date_imported = ensure_date(
+        ticker_latest_dates_imported.get(ticker, MIN_DATE)
     )
-    if latest_date_extracted <= utcnow().date() - timedelta(days=100):
+    if latest_date_imported <= utcnow().date() - timedelta(days=100):
         # More than 100 days worth, get full
         outputsize = "full"
     else:
@@ -71,14 +71,15 @@ def prepare_params_for_ticker(
 
 
 @Snap(
-    "alphavantage_extract_eod_prices",
+    "alphavantage_import_eod_prices",
     module="stocks",
-    state_class=ExtractAlphavantageState,
+    state_class=ImportAlphavantageEodState,
+    display_name="Import Alphavantage EOD prices",
 )
 @Param("api_key", "str")
 @Param("tickers", "json", required=False)
 @Input("tickers", schema="Ticker", reference=True, required=False)
-def alphavantage_extract_eod_prices(
+def alphavantage_import_eod_prices(
     ctx: SnapContext, tickers: Optional[DataBlock[Ticker]] = None
 ) -> RecordsIterator[AlphavantageEodPrice]:
     api_key = ctx.get_param("api_key")
@@ -88,8 +89,8 @@ def alphavantage_extract_eod_prices(
         # We didn't get an input block for tickers AND
         # the params is empty, so we are done
         return None
-    ticker_latest_dates_extracted = (
-        ctx.get_state_value("ticker_latest_dates_extracted") or {}
+    ticker_latest_dates_imported = (
+        ctx.get_state_value("ticker_latest_dates_imported") or {}
     )
     conn = JsonHttpApiConnection()
 
@@ -111,7 +112,7 @@ def alphavantage_extract_eod_prices(
 
     for ticker in tickers:
         assert isinstance(ticker, str)
-        params = prepare_params_for_ticker(ticker, ticker_latest_dates_extracted)
+        params = prepare_params_for_ticker(ticker, ticker_latest_dates_imported)
         params["apikey"] = api_key
         records = fetch_prices(params)
         if not records:
@@ -121,23 +122,24 @@ def alphavantage_extract_eod_prices(
             r["symbol"] = ticker
         yield records
         # Update state
-        ticker_latest_dates_extracted[ticker] = utcnow().date()
+        ticker_latest_dates_imported[ticker] = utcnow().date()
         ctx.emit_state_value(
-            "ticker_latest_dates_extracted", ticker_latest_dates_extracted
+            "ticker_latest_dates_imported", ticker_latest_dates_imported
         )
         if not ctx.should_continue():
             break
 
 
 @Snap(
-    "alphavantage_extract_company_overview",
+    "alphavantage_import_company_overview",
     module="stocks",
-    state_class=ExtractAlphavantageState,
+    state_class=ImportAlphavantageEodState,
+    display_name="Import Alphavantage company overview",
 )
 @Param("api_key", "str")
 @Param("tickers", "json", required=False)
 @Input("tickers", schema="Ticker", reference=True, required=False)
-def alphavantage_extract_company_overview(
+def alphavantage_import_company_overview(
     ctx: SnapContext, tickers: Optional[DataBlock[Ticker]] = None
 ) -> RecordsIterator[AlphavantageCompanyOverview]:
     api_key = ctx.get_param("api_key")
@@ -147,21 +149,21 @@ def alphavantage_extract_company_overview(
         # We didn't get an input block for tickers AND
         # the config is empty, so we are done
         return None
-    ticker_latest_dates_extracted = (
-        ctx.get_state_value("ticker_latest_dates_extracted") or {}
+    ticker_latest_dates_imported = (
+        ctx.get_state_value("ticker_latest_dates_imported") or {}
     )
     conn = JsonHttpApiConnection()
     batch_size = 100
     records = []
     for i, ticker in enumerate(tickers):
         assert isinstance(ticker, str)
-        latest_date_extracted = ensure_datetime(
-            ticker_latest_dates_extracted.get(ticker, MIN_DATETIME)
+        latest_date_imported = ensure_datetime(
+            ticker_latest_dates_imported.get(ticker, MIN_DATETIME)
         )
-        assert latest_date_extracted is not None
+        assert latest_date_imported is not None
         # Refresh at most once a day
         # TODO: make this configurable instead of hard-coded 1 day
-        if utcnow() - ensure_utc(latest_date_extracted) < timedelta(days=1):
+        if utcnow() - ensure_utc(latest_date_imported) < timedelta(days=1):
             continue
         params = {
             "apikey": api_key,
@@ -178,9 +180,9 @@ def alphavantage_extract_company_overview(
         if len(records) >= batch_size or i == len(tickers) - 1:
             yield records
             # Update state
-            ticker_latest_dates_extracted[ticker] = utcnow()
+            ticker_latest_dates_imported[ticker] = utcnow()
             ctx.emit_state_value(
-                "ticker_latest_dates_extracted", ticker_latest_dates_extracted
+                "ticker_latest_dates_imported", ticker_latest_dates_imported
             )
             if not ctx.should_continue():
                 break

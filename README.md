@@ -12,8 +12,8 @@ Stocks module for the [snapflow](https://github.com/kvh/snapflow) framework.
 - Vendors
   - Marketstack
     - Pipes
-      - `marketstack_extract_tickers`
-      - `marketstack_extract_eod_prices`
+      - `marketstack_import_tickers`
+      - `marketstack_import_eod_prices`
     - Schemas
       - `MarketstackTicker`
 
@@ -27,11 +27,11 @@ g = graph()
 
 # Initial graph
 tickers = g.create_node(
-    snapflow_stocks.snaps.marketstack_extract_tickers,
+    snapflow_stocks.snaps.marketstack_import_tickers,
     params={"access_key": "xxxxx", "exchanges": ["XNAS", "XNYS"]},
 )
 prices = g.create_node(
-    snapflow_stocks.snaps.marketstack_extract_eod_prices,
+    snapflow_stocks.snaps.marketstack_import_eod_prices,
     params={"access_key": api_key},
     upstream={"tickers": tickers}
 )
