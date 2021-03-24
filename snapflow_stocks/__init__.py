@@ -1,12 +1,12 @@
 from typing import TypeVar
 
 from snapflow import SnapflowModule
-from snapflow_stocks.alphavantage.snaps.import import (
+from snapflow_stocks.alphavantage.snaps.importers import (
     alphavantage_import_company_overview,
     alphavantage_import_eod_prices,
 )
-from snapflow_stocks.marketstack.snaps.conform import marketstack_conform_tickers
-from snapflow_stocks.marketstack.snaps.import import (
+from snapflow_stocks.marketstack.snaps.conformers import marketstack_conform_tickers
+from snapflow_stocks.marketstack.snaps.importers import (
     marketstack_import_eod_prices,
     marketstack_import_tickers,
 )
