@@ -60,7 +60,7 @@ def test_tickers_into_eod():
     prices = g.create_node(
         snapflow_stocks.snaps.marketstack_import_eod_prices,
         params={"access_key": api_key},
-        upstream={"tickers": tickers},
+        inputs={"tickers": tickers},
     )
     output = produce(prices, node_timelimit_seconds=1, modules=[snapflow_stocks])
     records = output.as_records()
