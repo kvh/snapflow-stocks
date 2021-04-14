@@ -3,20 +3,20 @@ from __future__ import annotations
 import time
 from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
-from typing import TYPE_CHECKING, Dict, List, Optional
+from typing import TYPE_CHECKING, Dict, Iterator, List, Optional
 
-from snapflow import DataBlock, Param, Snap, SnapContext
-from snapflow.core.extraction.connection import JsonHttpApiConnection
-from snapflow.core.snap import Input
-from snapflow.storage.data_formats import Records, RecordsIterator
-from snapflow.utils.common import (
+from dcp.data_format.formats.memory.records import Records
+from dcp.utils.common import (
     ensure_date,
     ensure_datetime,
     ensure_utc,
     title_to_snake_case,
     utcnow,
 )
-from snapflow.utils.data import read_csv
+from dcp.utils.data import read_csv
+from snapflow import DataBlock, Param, Snap, SnapContext
+from snapflow.core.extraction.connection import JsonHttpApiConnection
+from snapflow.core.snap import Input
 
 if TYPE_CHECKING:
     from snapflow_stocks import (
@@ -81,7 +81,7 @@ def prepare_params_for_ticker(
 @Input("tickers", schema="Ticker", reference=True, required=False)
 def alphavantage_import_eod_prices(
     ctx: SnapContext, tickers: Optional[DataBlock[Ticker]] = None
-) -> RecordsIterator[AlphavantageEodPrice]:
+) -> Iterator[Records[AlphavantageEodPrice]]:
     api_key = ctx.get_param("api_key")
     assert api_key is not None
     tickers = prepare_tickers(ctx, tickers)
@@ -141,7 +141,7 @@ def alphavantage_import_eod_prices(
 @Input("tickers", schema="Ticker", reference=True, required=False)
 def alphavantage_import_company_overview(
     ctx: SnapContext, tickers: Optional[DataBlock[Ticker]] = None
-) -> RecordsIterator[AlphavantageCompanyOverview]:
+) -> Iterator[Records[AlphavantageCompanyOverview]]:
     api_key = ctx.get_param("api_key")
     assert api_key is not None
     tickers = prepare_tickers(ctx, tickers)

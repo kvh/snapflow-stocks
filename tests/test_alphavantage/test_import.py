@@ -23,8 +23,8 @@ def test_eod():
         snapflow_stocks.snaps.alphavantage_import_eod_prices,
         params={"api_key": api_key, "tickers": ["AAPL"]},
     )
-    output = produce(prices, node_timelimit_seconds=1, modules=[snapflow_stocks])
-    records = output.as_records()
+    blocks = produce(prices, execution_timelimit_seconds=1, modules=[snapflow_stocks])
+    records = blocks[0].as_records()
     assert len(records) > 0
 
 
@@ -40,8 +40,8 @@ def test_overview():
         snapflow_stocks.snaps.alphavantage_import_company_overview,
         params={"api_key": api_key, "tickers": ["AAPL"]},
     )
-    output = produce(overview, node_timelimit_seconds=1, modules=[snapflow_stocks])
-    records = output.as_records()
+    blocks = produce(overview, execution_timelimit_seconds=1, modules=[snapflow_stocks])
+    records = blocks[0].as_records()
     assert len(records) == 1
 
 

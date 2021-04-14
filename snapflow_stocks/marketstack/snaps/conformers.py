@@ -3,9 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from pandas.core.frame import DataFrame
-
 from snapflow import DataBlock, Snap
-from snapflow.storage.data_formats.data_frame import DataFrameIterator
 
 if TYPE_CHECKING:
     from snapflow_stocks import Ticker, MarketstackTicker
@@ -24,7 +22,8 @@ if TYPE_CHECKING:
 
 
 @Snap(
-    "marketstack_conform_tickers", module="stocks",
+    "marketstack_conform_tickers",
+    module="stocks",
 )
 def marketstack_conform_tickers(
     tickers: DataBlock[MarketstackTicker],

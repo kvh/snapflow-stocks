@@ -8,30 +8,30 @@ unique_on:
 immutable: true
 fields:
   symbol:
-    type: Unicode(255)
+    type: Text
     validators:
       - NotNull
   exchange:
-    type: Unicode(255)
+    type: Text
   date:
     type: Date
     validators:
       - NotNull
   open:
-    type: Numeric(12,4)
+    type: Decimal(12,4)
   close:
-    type: Numeric(12,4)
+    type: Decimal(12,4)
   high:
-    type: Numeric(12,4)
+    type: Decimal(12,4)
   low:
-    type: Numeric(12,4)
+    type: Decimal(12,4)
   adj_open:
-    type: Numeric(12,4)
+    type: Decimal(12,4)
   adj_close:
-    type: Numeric(12,4)
+    type: Decimal(12,4)
   adj_high:
-    type: Numeric(12,4)
+    type: Decimal(12,4)
   adj_low:
-    type: Numeric(12,4)
+    type: Decimal(12,4)
   volume:
-    type: Numeric(24,4)
+    type: Decimal(24,4)

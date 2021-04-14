@@ -7,7 +7,7 @@ unique_on:
 immutable: true
 fields:
   symbol:
-    type: Unicode(255)
+    type: Text
     validators:
       - NotNull
   timestamp:
@@ -15,21 +15,21 @@ fields:
     validators:
       - NotNull
   open:
-    type: Numeric(12,4)
+    type: Decimal(12,4)
   close:
-    type: Numeric(12,4)
+    type: Decimal(12,4)
   high:
-    type: Numeric(12,4)
+    type: Decimal(12,4)
   low:
-    type: Numeric(12,4)
+    type: Decimal(12,4)
   adjusted_close:
-    type: Numeric(12,4)
+    type: Decimal(12,4)
   volume:
-    type: Numeric(24,4)
+    type: Decimal(24,4)
   dividend_amount:
-    type: Numeric(12,4)
+    type: Decimal(12,4)
   split_coefficient:
-    type: Numeric(12,4)
+    type: Decimal(12,4)
 implementations:
   EodPrice:
     date: timestamp

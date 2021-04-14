@@ -7,10 +7,10 @@ unique_on:
 immutable: false
 fields:
   symbol:
-    type: Unicode(255)
+    type: Text
     validators:
       - NotNull
   name:
-    type: Unicode(255)
+    type: Text
   exchange:
-    type: Unicode(255)
+    type: Text

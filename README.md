@@ -35,7 +35,7 @@ prices = g.create_node(
     params={"access_key": api_key},
     upstream={"tickers": tickers}
 )
-output = produce(prices, node_timelimit_seconds=5, modules=[snapflow_stocks])
-records = output.as_records()
+blocks = produce(prices, execution_timelimit_seconds=5, modules=[snapflow_stocks])
+records = blocks[0].as_records()
 print(records)
 ```

@@ -2,14 +2,14 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
-from typing import TYPE_CHECKING, Dict, List, Optional
+from typing import TYPE_CHECKING, Dict, Iterator, List, Optional
 
 import pytz
+from dcp.data_format.formats.memory.records import Records
+from dcp.utils.common import ensure_date, ensure_datetime, ensure_utc, utcnow
 from snapflow import DataBlock, Param, Snap, SnapContext
 from snapflow.core.extraction.connection import JsonHttpApiConnection
 from snapflow.core.snap import Input
-from snapflow.storage.data_formats import RecordsIterator
-from snapflow.utils.common import ensure_date, ensure_datetime, ensure_utc, utcnow
 
 if TYPE_CHECKING:
     from snapflow_stocks import EodPrice, MarketstackTicker, Ticker
@@ -37,7 +37,7 @@ class ImportMarketstackEodState:
 @Input("tickers", schema="Ticker", reference=True, required=False)
 def marketstack_import_eod_prices(
     ctx: SnapContext, tickers: Optional[DataBlock[Ticker]] = None
-) -> RecordsIterator[EodPrice]:
+) -> Iterator[Records[EodPrice]]:
     access_key = ctx.get_param("access_key")
     use_https = False  # TODO: when do we want this True?
     default_from_date = ctx.get_param("from_date", MIN_DATE)
@@ -103,7 +103,9 @@ class ImportMarketstackTickersState:
 )
 @Param("access_key", "str")
 @Param("exchanges", "json", default=["XNYS", "XNAS"])
-def marketstack_import_tickers(ctx: SnapContext,) -> RecordsIterator[MarketstackTicker]:
+def marketstack_import_tickers(
+    ctx: SnapContext,
+) -> Iterator[Records[MarketstackTicker]]:
     access_key = ctx.get_param("access_key")
     use_https = False  # TODO: when do we want this True?
     # default_from_date = ctx.get_param("from_date", MIN_DATE)

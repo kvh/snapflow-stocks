@@ -23,8 +23,8 @@ def test_eod():
         snapflow_stocks.snaps.marketstack_import_eod_prices,
         params={"access_key": api_key, "tickers": ["AAPL"]},
     )
-    output = produce(prices, node_timelimit_seconds=1, modules=[snapflow_stocks])
-    records = output.as_records()
+    blocks = produce(prices, execution_timelimit_seconds=1, modules=[snapflow_stocks])
+    records = blocks[0].as_records()
     assert len(records) >= 100
 
 
@@ -40,8 +40,8 @@ def test_tickers():
         snapflow_stocks.snaps.marketstack_import_tickers,
         params={"access_key": api_key, "exchanges": ["XNAS"]},
     )
-    output = produce(tickers, node_timelimit_seconds=1, modules=[snapflow_stocks])
-    records = output.as_records()
+    blocks = produce(tickers, execution_timelimit_seconds=1, modules=[snapflow_stocks])
+    records = blocks[0].as_records()
     assert len(records) >= 100
 
 
@@ -62,8 +62,8 @@ def test_tickers_into_eod():
         params={"access_key": api_key},
         inputs={"tickers": tickers},
     )
-    output = produce(prices, node_timelimit_seconds=1, modules=[snapflow_stocks])
-    records = output.as_records()
+    blocks = produce(prices, execution_timelimit_seconds=1, modules=[snapflow_stocks])
+    records = blocks[0].as_records()
     assert len(records) >= 100
 
 

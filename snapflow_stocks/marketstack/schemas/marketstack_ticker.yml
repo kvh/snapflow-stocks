@@ -7,22 +7,22 @@ unique_on:
 immutable: false
 fields:
   symbol:
-    type: Unicode(255)
+    type: Text
     validators:
       - NotNull
   exchange_acronym:
-    type: Unicode(255)
+    type: Text
     validators:
       - NotNull
   name:
-    type: Unicode(255)
+    type: Text
     validators:
       - NotNull
   country:
-    type: Unicode(255)
+    type: Text
   has_eod:
     type: Boolean
   has_intraday:
     type: Boolean
   stock_exchange:
-    type: JSON
+    type: Json
