@@ -7,7 +7,7 @@ version = "0.3.0"
 
 [tool.poetry.dependencies]
 python = "^3.7.4"
-snapflow = "~0.5.0.a1"
+snapflow = "~0.5.2"
 
 [tool.poetry.dev-dependencies]
 black = "^19.10b0"
