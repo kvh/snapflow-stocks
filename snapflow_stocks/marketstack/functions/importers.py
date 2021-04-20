@@ -7,9 +7,10 @@ from typing import TYPE_CHECKING, Dict, Iterator, List, Optional
 import pytz
 from dcp.data_format.formats.memory.records import Records
 from dcp.utils.common import ensure_date, ensure_datetime, ensure_utc, utcnow
-from snapflow import DataBlock, Param, Snap, SnapContext
+from snapflow import DataBlock, Param, Function, FunctionContext
 from snapflow.core.extraction.connection import JsonHttpApiConnection
-from snapflow.core.snap import Input
+from snapflow.core.function import Input
+from snapflow.core.function_interface import Reference
 
 if TYPE_CHECKING:
     from snapflow_stocks import EodPrice, MarketstackTicker, Ticker
@@ -25,31 +26,27 @@ class ImportMarketstackEodState:
     ticker_latest_dates_imported: Dict[str, date]
 
 
-@Snap(
+@Function(
     "marketstack_import_eod_prices",
-    module="stocks",
+    namespace="stocks",
     state_class=ImportMarketstackEodState,
     display_name="Import Marketstack EOD prices",
 )
-@Param("access_key", "str")
-@Param("tickers", "json", required=False)
-@Param("from_date", "date", default=MIN_DATE)
-@Input("tickers", schema="Ticker", reference=True, required=False)
 def marketstack_import_eod_prices(
-    ctx: SnapContext, tickers: Optional[DataBlock[Ticker]] = None
+    ctx: FunctionContext,
+    tickers_input: Optional[Reference[Ticker]],
+    access_key: str,
+    from_date: date = MIN_DATE,
+    tickers: Optional[List] = None,
 ) -> Iterator[Records[EodPrice]]:
-    access_key = ctx.get_param("access_key")
+    # access_key = ctx.get_param("access_key")
     use_https = False  # TODO: when do we want this True?
-    default_from_date = ctx.get_param("from_date", MIN_DATE)
+    default_from_date = from_date
     assert access_key is not None
-    if tickers is None:
-        tickers = ctx.get_param("tickers")
-        if tickers is None:
-            # We didn't get an input block for tickers AND
-            # the params is empty, so we are done
-            return
-    else:
-        tickers = tickers.as_dataframe()["symbol"]
+    if tickers_input is not None:
+        tickers = list(tickers_input.as_dataframe()["symbol"])
+    if not tickers:
+        return
     ticker_latest_dates_imported = (
         ctx.get_state_value("ticker_latest_dates_imported") or {}
     )
@@ -95,22 +92,18 @@ class ImportMarketstackTickersState:
     last_imported_at: datetime
 
 
-@Snap(
+@Function(
     "marketstack_import_tickers",
-    module="stocks",
+    namespace="stocks",
     state_class=ImportMarketstackTickersState,
     display_name="Import Marketstack tickers",
 )
-@Param("access_key", "str")
-@Param("exchanges", "json", default=["XNYS", "XNAS"])
 def marketstack_import_tickers(
-    ctx: SnapContext,
+    ctx: FunctionContext, access_key: str, exchanges: List = ["XNYS", "XNAS"],
 ) -> Iterator[Records[MarketstackTicker]]:
-    access_key = ctx.get_param("access_key")
     use_https = False  # TODO: when do we want this True?
     # default_from_date = ctx.get_param("from_date", MIN_DATE)
     assert access_key is not None
-    exchanges = ctx.get_param("exchanges")
     assert isinstance(exchanges, list)
     last_imported_at = ensure_datetime(
         ctx.get_state_value("last_imported_at") or "2020-01-01 00:00:00"

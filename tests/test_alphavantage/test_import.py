@@ -12,7 +12,7 @@ def ensure_api_key() -> str:
 
 
 def test_eod():
-    import snapflow_stocks
+    from snapflow_stocks import module as stocks
 
     api_key = ensure_api_key()
 
@@ -20,16 +20,16 @@ def test_eod():
 
     # Initial graph
     prices = g.node(
-        snapflow_stocks.snaps.alphavantage_import_eod_prices,
+        stocks.functions.alphavantage_import_eod_prices,
         params={"api_key": api_key, "tickers": ["AAPL"]},
     )
-    blocks = produce(prices, execution_timelimit_seconds=1, modules=[snapflow_stocks])
+    blocks = produce(prices, execution_timelimit_seconds=1, modules=[stocks])
     records = blocks[0].as_records()
     assert len(records) > 0
 
 
 def test_overview():
-    import snapflow_stocks
+    from snapflow_stocks import module as stocks
 
     api_key = ensure_api_key()
 
@@ -37,10 +37,10 @@ def test_overview():
 
     # Initial graph
     overview = g.node(
-        snapflow_stocks.snaps.alphavantage_import_company_overview,
+        stocks.functions.alphavantage_import_company_overview,
         params={"api_key": api_key, "tickers": ["AAPL"]},
     )
-    blocks = produce(overview, execution_timelimit_seconds=1, modules=[snapflow_stocks])
+    blocks = produce(overview, execution_timelimit_seconds=1, modules=[stocks])
     records = blocks[0].as_records()
     assert len(records) == 1
 

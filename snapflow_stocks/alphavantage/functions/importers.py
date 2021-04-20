@@ -14,9 +14,10 @@ from dcp.utils.common import (
     utcnow,
 )
 from dcp.utils.data import read_csv
-from snapflow import DataBlock, Param, Snap, SnapContext
+from snapflow import DataBlock, Param, Function, FunctionContext
 from snapflow.core.extraction.connection import JsonHttpApiConnection
-from snapflow.core.snap import Input
+from snapflow.core.function import Input
+from snapflow.core.function_interface import Reference
 
 if TYPE_CHECKING:
     from snapflow_stocks import (
@@ -37,15 +38,15 @@ class ImportAlphavantageEodState:
 
 
 def prepare_tickers(
-    ctx: SnapContext, tickers: Optional[DataBlock[Ticker]] = None
+    tickers_list: Optional[List] = None,
+    tickers_input: Optional[DataBlock[Ticker]] = None,
 ) -> Optional[List[str]]:
-    if tickers is None:
-        tickers = ctx.get_param("tickers")
-        if tickers is None:
-            return
+    tickers = []
+    if tickers_input is not None:
+        df = tickers_input.as_dataframe()
+        tickers = list(df["symbol"])
     else:
-        df = tickers.as_dataframe()
-        tickers = df["symbol"]
+        tickers = tickers_list or []
     return tickers
 
 
@@ -70,24 +71,21 @@ def prepare_params_for_ticker(
     return params
 
 
-@Snap(
+@Function(
     "alphavantage_import_eod_prices",
-    module="stocks",
+    namespace="stocks",
     state_class=ImportAlphavantageEodState,
     display_name="Import Alphavantage EOD prices",
 )
-@Param("api_key", "str")
-@Param("tickers", "json", required=False)
-@Input("tickers", schema="Ticker", reference=True, required=False)
 def alphavantage_import_eod_prices(
-    ctx: SnapContext, tickers: Optional[DataBlock[Ticker]] = None
+    ctx: FunctionContext,
+    tickers_input: Optional[Reference[Ticker]],
+    api_key: str,
+    tickers: Optional[List] = None,
 ) -> Iterator[Records[AlphavantageEodPrice]]:
-    api_key = ctx.get_param("api_key")
     assert api_key is not None
-    tickers = prepare_tickers(ctx, tickers)
-    if tickers is None:
-        # We didn't get an input block for tickers AND
-        # the params is empty, so we are done
+    tickers = prepare_tickers(tickers, tickers_input)
+    if not tickers:
         return None
     ticker_latest_dates_imported = (
         ctx.get_state_value("ticker_latest_dates_imported") or {}
@@ -130,21 +128,20 @@ def alphavantage_import_eod_prices(
             break
 
 
-@Snap(
+@Function(
     "alphavantage_import_company_overview",
-    module="stocks",
+    namespace="stocks",
     state_class=ImportAlphavantageEodState,
     display_name="Import Alphavantage company overview",
 )
-@Param("api_key", "str")
-@Param("tickers", "json", required=False)
-@Input("tickers", schema="Ticker", reference=True, required=False)
 def alphavantage_import_company_overview(
-    ctx: SnapContext, tickers: Optional[DataBlock[Ticker]] = None
+    ctx: FunctionContext,
+    tickers_input: Optional[Reference[Ticker]],
+    api_key: str,
+    tickers: Optional[List] = None,
 ) -> Iterator[Records[AlphavantageCompanyOverview]]:
-    api_key = ctx.get_param("api_key")
     assert api_key is not None
-    tickers = prepare_tickers(ctx, tickers)
+    tickers = prepare_tickers(tickers, tickers_input)
     if tickers is None:
         # We didn't get an input block for tickers AND
         # the config is empty, so we are done

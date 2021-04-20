@@ -3,15 +3,15 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from pandas.core.frame import DataFrame
-from snapflow import DataBlock, Snap
+from snapflow import DataBlock, Function
 
 if TYPE_CHECKING:
     from snapflow_stocks import Ticker, MarketstackTicker
 
 
-# @Snap(
+# @Function(
 #     "marketstack_conform_tickers",
-#     module="stocks",
+#     namespace="stocks",
 # )
 # def marketstack_conform_tickers(
 #     tickers: DataBlock[MarketstackTicker],
@@ -21,9 +21,8 @@ if TYPE_CHECKING:
 #         yield df[["symbol", "name", "exchange"]]
 
 
-@Snap(
-    "marketstack_conform_tickers",
-    module="stocks",
+@Function(
+    "marketstack_conform_tickers", namespace="stocks",
 )
 def marketstack_conform_tickers(
     tickers: DataBlock[MarketstackTicker],

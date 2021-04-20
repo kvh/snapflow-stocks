@@ -3,11 +3,11 @@ authors = ["Ken Van Haren <kenvanharen@gmail.com>"]
 description = "Stocks module for snapflow"
 license = "BSD-3-Clause"
 name = "snapflow-stocks"
-version = "0.2.1"
+version = "0.3.0"
 
 [tool.poetry.dependencies]
 python = "^3.7.4"
-snapflow = "~0.4.0"
+snapflow = "~0.5.0.a1"
 
 [tool.poetry.dev-dependencies]
 black = "^19.10b0"

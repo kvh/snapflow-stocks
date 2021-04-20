@@ -1,12 +1,12 @@
 from typing import TypeVar
 
 from snapflow import SnapflowModule
-from snapflow_stocks.alphavantage.snaps.importers import (
+from snapflow_stocks.alphavantage.functions.importers import (
     alphavantage_import_company_overview,
     alphavantage_import_eod_prices,
 )
-from snapflow_stocks.marketstack.snaps.conformers import marketstack_conform_tickers
-from snapflow_stocks.marketstack.snaps.importers import (
+from snapflow_stocks.marketstack.functions.conformers import marketstack_conform_tickers
+from snapflow_stocks.marketstack.functions.importers import (
     marketstack_import_eod_prices,
     marketstack_import_tickers,
 )
@@ -23,19 +23,10 @@ module = SnapflowModule(
     "stocks",
     py_module_path=__file__,
     py_module_name=__name__,
-    schemas=[
-        "schemas/ticker.yml",
-        "schemas/eod_price.yml",
-        "alphavantage/schemas/alphavantage_eod_price.yml",
-        "alphavantage/schemas/alphavantage_company_overview.yml",
-        "marketstack/schemas/marketstack_ticker.yml",
-    ],
-    snaps=[
-        alphavantage_import_eod_prices,
-        alphavantage_import_company_overview,
-        marketstack_import_eod_prices,
-        marketstack_import_tickers,
-        marketstack_conform_tickers,
-    ],
+    schema_paths=["schemas", "alphavantage/schemas", "marketstack/schemas",],
 )
-module.export()
+module.add_function(alphavantage_import_eod_prices)
+module.add_function(alphavantage_import_company_overview)
+module.add_function(marketstack_import_eod_prices)
+module.add_function(marketstack_import_tickers)
+module.add_function(marketstack_conform_tickers)
