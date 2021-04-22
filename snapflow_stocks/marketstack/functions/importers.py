@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Dict, Iterator, List, Optional
 import pytz
 from dcp.data_format.formats.memory.records import Records
 from dcp.utils.common import ensure_date, ensure_datetime, ensure_utc, utcnow
-from snapflow import DataBlock, Param, Function, FunctionContext
+from snapflow import datafunction, Context, DataBlock
 from snapflow.core.extraction.connection import JsonHttpApiConnection
 from snapflow.core.function import Input
 from snapflow.core.function_interface import Reference
@@ -26,14 +26,14 @@ class ImportMarketstackEodState:
     ticker_latest_dates_imported: Dict[str, date]
 
 
-@Function(
+@datafunction(
     "marketstack_import_eod_prices",
     namespace="stocks",
     state_class=ImportMarketstackEodState,
     display_name="Import Marketstack EOD prices",
 )
 def marketstack_import_eod_prices(
-    ctx: FunctionContext,
+    ctx: Context,
     tickers_input: Optional[Reference[Ticker]],
     access_key: str,
     from_date: date = MIN_DATE,
@@ -92,14 +92,14 @@ class ImportMarketstackTickersState:
     last_imported_at: datetime
 
 
-@Function(
+@datafunction(
     "marketstack_import_tickers",
     namespace="stocks",
     state_class=ImportMarketstackTickersState,
     display_name="Import Marketstack tickers",
 )
 def marketstack_import_tickers(
-    ctx: FunctionContext, access_key: str, exchanges: List = ["XNYS", "XNAS"],
+    ctx: Context, access_key: str, exchanges: List = ["XNYS", "XNAS"],
 ) -> Iterator[Records[MarketstackTicker]]:
     use_https = False  # TODO: when do we want this True?
     # default_from_date = ctx.get_param("from_date", MIN_DATE)

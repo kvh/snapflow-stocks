@@ -14,7 +14,8 @@ from dcp.utils.common import (
     utcnow,
 )
 from dcp.utils.data import read_csv
-from snapflow import DataBlock, Param, Function, FunctionContext
+from snapflow import DataBlock
+from snapflow import datafunction, Context
 from snapflow.core.extraction.connection import JsonHttpApiConnection
 from snapflow.core.function import Input
 from snapflow.core.function_interface import Reference
@@ -71,14 +72,14 @@ def prepare_params_for_ticker(
     return params
 
 
-@Function(
+@datafunction(
     "alphavantage_import_eod_prices",
     namespace="stocks",
     state_class=ImportAlphavantageEodState,
     display_name="Import Alphavantage EOD prices",
 )
 def alphavantage_import_eod_prices(
-    ctx: FunctionContext,
+    ctx: Context,
     tickers_input: Optional[Reference[Ticker]],
     api_key: str,
     tickers: Optional[List] = None,
@@ -128,14 +129,14 @@ def alphavantage_import_eod_prices(
             break
 
 
-@Function(
+@datafunction(
     "alphavantage_import_company_overview",
     namespace="stocks",
     state_class=ImportAlphavantageEodState,
     display_name="Import Alphavantage company overview",
 )
 def alphavantage_import_company_overview(
-    ctx: FunctionContext,
+    ctx: Context,
     tickers_input: Optional[Reference[Ticker]],
     api_key: str,
     tickers: Optional[List] = None,
