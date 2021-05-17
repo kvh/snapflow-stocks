@@ -72,6 +72,15 @@ def prepare_params_for_ticker(
     return params
 
 
+def is_alphavantage_error(record: Dict) -> bool:
+    str_record = str(record).lower()
+    return "error message" in str_record or "invalid api call" in str_record
+
+
+def is_alphavantage_rate_limit(record: Dict) -> bool:
+    return "calls per minute" in str(record).lower()
+
+
 @datafunction(
     "alphavantage_import_eod_prices",
     namespace="stocks",
@@ -100,11 +109,11 @@ def alphavantage_import_eod_prices(
         records = list(read_csv(resp.raw))
         if records:
             # Alphavantage returns 200 and json error message on failure
-            if "Error Message" in str(records[0]):
+            if is_alphavantage_error(records[0]):
                 # TODO: Log this failure?
                 print(f"Error for ticker {ticker}: {records[0]}")
                 return None
-            if "calls per minute" in str(records[0]):
+            if is_alphavantage_rate_limit(records[0]):
                 time.sleep(60)
                 return fetch_prices(params, tries=tries + 1)
         return records
@@ -153,6 +162,22 @@ def alphavantage_import_company_overview(
     conn = JsonHttpApiConnection()
     batch_size = 100
     records = []
+
+    def fetch_overview(params: Dict, tries: int = 0) -> Optional[Dict]:
+        if tries > 2:
+            return None
+        resp = conn.get(ALPHAVANTAGE_API_BASE_URL, params, stream=True)
+        record = resp.json()
+        # Alphavantage returns 200 and json error message on failure
+        if is_alphavantage_error(record):
+            # TODO: Log this failure?
+            print(f"Error for ticker {params['symbol']}: {record}")
+            return None
+        if is_alphavantage_rate_limit(record):
+            time.sleep(60)
+            return fetch_overview(params, tries=tries + 1)
+        return record
+
     for i, ticker in enumerate(tickers):
         assert isinstance(ticker, str)
         latest_date_imported = ensure_datetime(
@@ -168,10 +193,10 @@ def alphavantage_import_company_overview(
             "symbol": ticker,
             "function": "OVERVIEW",
         }
-        resp = conn.get(ALPHAVANTAGE_API_BASE_URL, params, stream=True)
-        record = resp.json()
+        record = fetch_overview(params)
         if not record:
             continue
+
         # Clean up json keys to be more DB friendly
         record = {title_to_snake_case(k): v for k, v in record.items()}
         records.append(record)
