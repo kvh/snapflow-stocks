@@ -5,121 +5,123 @@ unique_on:
   - symbol
 immutable: False
 fields:
-  200_day_moving_average:
-    type: Text
-  50_day_moving_average:
-    type: Text
-  52_week_high:
-    type: Text
-  52_week_low:
-    type: Text
-  address:
-    type: Text
-  analyst_target_price:
+  symbol:
     type: Text
   asset_type:
     type: Text
-  beta:
+  name:
     type: Text
-  book_value:
+  description:
     type: Text
-  country:
+  cik:
+    type: Integer
+  exchange:
     type: Text
   currency:
     type: Text
-  description:
-    type: LongText
-  diluted_epsttm:
+  country:
     type: Text
-  dividend_date:
-    type: DateTime
-  dividend_per_share:
-    type: Text
-  dividend_yield:
-    type: Text
-  ebitda:
-    type: Text
-  eps:
-    type: Text
-  ev_to_ebitda:
-    type: Text
-  ev_to_revenue:
-    type: Text
-  ex_dividend_date:
-    type: DateTime
-  exchange:
-    type: Text
-  fiscal_year_end:
-    type: Text
-  forward_annual_dividend_rate:
-    type: Text
-  forward_annual_dividend_yield:
-    type: Text
-  forward_pe:
-    type: Text
-  full_time_employees:
-    type: Text
-  gross_profit_ttm:
+  sector:
     type: Text
   industry:
     type: Text
-  last_split_date:
-    type: DateTime
-  last_split_factor:
+  address:
+    type: Text
+  full_time_employees:
+    type: Integer
+  fiscal_year_end:
     type: Text
   latest_quarter:
     type: DateTime
   market_capitalization:
-    type: Text
-  name:
-    type: Text
-  operating_margin_ttm:
-    type: Text
-  payout_ratio:
-    type: Text
-  pegratio:
-    type: Text
-  peratio:
-    type: Text
-  percent_insiders:
-    type: Text
-  percent_institutions:
-    type: Text
-  price_to_book_ratio:
-    type: Text
-  price_to_sales_ratio_ttm:
-    type: Text
-  profit_margin:
-    type: Text
-  quarterly_earnings_growth_yoy:
-    type: Text
-  quarterly_revenue_growth_yoy:
-    type: Text
-  return_on_assets_ttm:
-    type: Text
-  return_on_equity_ttm:
-    type: Text
+    type: Integer
+  ebitda:
+    type: Integer
+  pe_ratio:
+    type: Float
+  peg_ratio:
+    type: Float
+  book_value:
+    type: Float
+  dividend_per_share:
+    type: Float
+  dividend_yield:
+    type: Float
+  eps:
+    type: Float
   revenue_per_share_ttm:
-    type: Text
+    type: Float
+  profit_margin:
+    type: Float
+  operating_margin_ttm:
+    type: Float
+  return_on_assets_ttm:
+    type: Float
+  return_on_equity_ttm:
+    type: Float
   revenue_ttm:
-    type: Text
-  sector:
-    type: Text
-  shares_float:
-    type: Text
-  shares_outstanding:
-    type: Text
-  shares_short:
-    type: Text
-  shares_short_prior_month:
-    type: Text
-  short_percent_float:
-    type: Text
-  short_percent_outstanding:
-    type: Text
-  short_ratio:
-    type: Text
-  symbol:
-    type: Text
+    type: Integer
+  gross_profit_ttm:
+    type: Integer
+  diluted_epsttm:
+    type: Float
+  quarterly_earnings_growth_yoy:
+    type: Float
+  quarterly_revenue_growth_yoy:
+    type: Float
+  analyst_target_price:
+    type: Float
   trailing_pe:
+    type: Float
+  forward_pe:
+    type: Float
+  price_to_sales_ratio_ttm:
+    type: Float
+  price_to_book_ratio:
+    type: Float
+  ev_to_revenue:
+    type: Float
+  ev_to_ebitda:
+    type: Float
+  beta:
+    type: Float
+  52_week_high:
+    type: Float
+  52_week_low:
+    type: Float
+  50_day_moving_average:
+    type: Float
+  200_day_moving_average:
+    type: Float
+  shares_outstanding:
+    type: Integer
+  shares_float:
+    type: Integer
+  shares_short:
+    type: Integer
+  shares_short_prior_month:
+    type: Integer
+  short_ratio:
+    type: Float
+  short_percent_outstanding:
+    type: Float
+  short_percent_float:
+    type: Float
+  percent_insiders:
+    type: Float
+  percent_institutions:
+    type: Float
+  forward_annual_dividend_rate:
+    type: Float
+  forward_annual_dividend_yield:
+    type: Float
+  payout_ratio:
+    type: Float
+  dividend_date:
+    type: DateTime
+  ex_dividend_date:
+    type: DateTime
+  last_split_factor:
     type: Text
+  last_split_date:
+    type: DateTime

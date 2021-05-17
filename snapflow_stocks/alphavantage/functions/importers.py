@@ -78,7 +78,10 @@ def is_alphavantage_error(record: Dict) -> bool:
 
 
 def is_alphavantage_rate_limit(record: Dict) -> bool:
-    return "calls per minute" in str(record).lower()
+    return (
+        "calls per minute" in str(record).lower()
+        or "api call volume" in str(record).lower()
+    )
 
 
 @datafunction(
@@ -160,8 +163,9 @@ def alphavantage_import_company_overview(
         ctx.get_state_value("ticker_latest_dates_imported") or {}
     )
     conn = JsonHttpApiConnection()
-    batch_size = 100
+    batch_size = 50
     records = []
+    tickers_updated = []
 
     def fetch_overview(params: Dict, tries: int = 0) -> Optional[Dict]:
         if tries > 2:
@@ -174,7 +178,7 @@ def alphavantage_import_company_overview(
             print(f"Error for ticker {params['symbol']}: {record}")
             return None
         if is_alphavantage_rate_limit(record):
-            time.sleep(60)
+            time.sleep(20)
             return fetch_overview(params, tries=tries + 1)
         return record
 
@@ -200,13 +204,16 @@ def alphavantage_import_company_overview(
         # Clean up json keys to be more DB friendly
         record = {title_to_snake_case(k): v for k, v in record.items()}
         records.append(record)
+        tickers_updated.append(ticker)
         if len(records) >= batch_size or i == len(tickers) - 1:
             yield records
             # Update state
-            ticker_latest_dates_imported[ticker] = utcnow()
-            ctx.emit_state_value(
-                "ticker_latest_dates_imported", ticker_latest_dates_imported
-            )
+            for updated_ticker in tickers_updated:
+                ticker_latest_dates_imported[updated_ticker] = utcnow()
+                ctx.emit_state_value(
+                    "ticker_latest_dates_imported", ticker_latest_dates_imported
+                )
             if not ctx.should_continue():
                 break
             records = []
+            tickers_updated = []
