@@ -109,19 +109,25 @@ def alphavantage_import_eod_prices(
         if tries > 2:
             return None
         resp = conn.get(ALPHAVANTAGE_API_BASE_URL, params, stream=True)
-        records = list(read_csv(resp.raw))
-        if records:
-            # Alphavantage returns 200 and json error message on failure
-            if is_alphavantage_error(records[0]):
+        try:
+            record = resp.json()
+            # Json response means error
+            if is_alphavantage_error(record):
                 # TODO: Log this failure?
-                print(f"Error for ticker {ticker}: {records[0]}")
+                print(f"Error for {params}")
                 return None
-            if is_alphavantage_rate_limit(records[0]):
+            if is_alphavantage_rate_limit(record):
                 time.sleep(60)
                 return fetch_prices(params, tries=tries + 1)
+        except:
+            pass
+        # print(resp.raw.read().decode("utf8"))
+        # resp.raw.seek(0)
+        records = list(read_csv(resp.iter_lines()))
         return records
 
     for ticker in tickers:
+        print(ticker)
         assert isinstance(ticker, str)
         params = prepare_params_for_ticker(ticker, ticker_latest_dates_imported)
         params["apikey"] = api_key
@@ -170,7 +176,7 @@ def alphavantage_import_company_overview(
     def fetch_overview(params: Dict, tries: int = 0) -> Optional[Dict]:
         if tries > 2:
             return None
-        resp = conn.get(ALPHAVANTAGE_API_BASE_URL, params, stream=True)
+        resp = conn.get(ALPHAVANTAGE_API_BASE_URL, params)
         record = resp.json()
         # Alphavantage returns 200 and json error message on failure
         if is_alphavantage_error(record):
