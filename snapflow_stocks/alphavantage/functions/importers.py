@@ -52,12 +52,12 @@ def prepare_tickers(
 
 
 def prepare_params_for_ticker(
-    ticker: str, ticker_latest_dates_imported: Dict[str, date]
+    ticker: str, ticker_latest_dates_imported: Dict[str, datetime]
 ) -> Dict:
-    latest_date_imported = ensure_date(
-        ticker_latest_dates_imported.get(ticker, MIN_DATE)
+    latest_date_imported = ensure_datetime(
+        ticker_latest_dates_imported.get(ticker, MIN_DATETIME)
     )
-    if latest_date_imported <= utcnow().date() - timedelta(days=100):
+    if ensure_utc(latest_date_imported) <= utcnow() - timedelta(days=100):
         # More than 100 days worth, get full
         outputsize = "full"
     else:
@@ -114,7 +114,7 @@ def alphavantage_import_eod_prices(
             # Json response means error
             if is_alphavantage_error(record):
                 # TODO: Log this failure?
-                print(f"Error for {params}")
+                print(f"Error for {params} {record}")
                 return None
             if is_alphavantage_rate_limit(record):
                 time.sleep(60)
@@ -127,19 +127,24 @@ def alphavantage_import_eod_prices(
         return records
 
     for ticker in tickers:
-        print(ticker)
         assert isinstance(ticker, str)
+        latest_date_imported = ensure_datetime(
+            ticker_latest_dates_imported.get(ticker, MIN_DATETIME)
+        )
+        assert latest_date_imported is not None
+        if utcnow() - ensure_utc(latest_date_imported) < timedelta(days=1):
+            # Only check once a day
+            continue
         params = prepare_params_for_ticker(ticker, ticker_latest_dates_imported)
         params["apikey"] = api_key
         records = fetch_prices(params)
-        if not records:
-            continue
-        # Symbol not included
-        for r in records:
-            r["symbol"] = ticker
-        yield records
+        if records:
+            # Symbol not included
+            for r in records:
+                r["symbol"] = ticker
+            yield records
         # Update state
-        ticker_latest_dates_imported[ticker] = utcnow().date()
+        ticker_latest_dates_imported[ticker] = utcnow()
         ctx.emit_state_value(
             "ticker_latest_dates_imported", ticker_latest_dates_imported
         )
@@ -181,7 +186,7 @@ def alphavantage_import_company_overview(
         # Alphavantage returns 200 and json error message on failure
         if is_alphavantage_error(record):
             # TODO: Log this failure?
-            print(f"Error for ticker {params['symbol']}: {record}")
+            # print(f"Error for ticker {params['symbol']}: {record}")
             return None
         if is_alphavantage_rate_limit(record):
             time.sleep(20)
