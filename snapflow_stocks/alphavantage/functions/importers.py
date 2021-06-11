@@ -14,11 +14,9 @@ from dcp.utils.common import (
     utcnow,
 )
 from dcp.utils.data import read_csv
-from snapflow import DataBlock
+from snapflow import DataBlock, Reference
 from snapflow import datafunction, Context
 from snapflow.core.extraction.connection import JsonHttpApiConnection
-from snapflow.core.function import Input
-from snapflow.core.function_interface import Reference
 
 if TYPE_CHECKING:
     from snapflow_stocks import (

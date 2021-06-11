@@ -7,10 +7,8 @@ from typing import TYPE_CHECKING, Dict, Iterator, List, Optional
 import pytz
 from dcp.data_format.formats.memory.records import Records
 from dcp.utils.common import ensure_date, ensure_datetime, ensure_utc, utcnow
-from snapflow import datafunction, Context, DataBlock
+from snapflow import datafunction, Context, DataBlock, Reference
 from snapflow.core.extraction.connection import JsonHttpApiConnection
-from snapflow.core.function import Input
-from snapflow.core.function_interface import Reference
 
 if TYPE_CHECKING:
     from snapflow_stocks import EodPrice, MarketstackTicker, Ticker
